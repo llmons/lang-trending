@@ -1,11 +1,127 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+import { Octokit } from "octokit";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const languages = [
+	"Python",
+	"C",
+	"C++",
+	"Java",
+	"C#",
+	"JavaScript",
+	"Visual Basic",
+	"SQL",
+	"R",
+	"Rust", // ten
+	"Fortran",
+	"Go",
+	"Delphi/Object Pascal",
+	"PHP",
+	"Scratch",
+	"Assembly language",
+	"Ada",
+	"Swift",
+	"Objective-C",
+	"COBOL", // twenty
+	"Julia",
+	"Ruby",
+	"Perl",
+	"SAS",
+	"Classic Visual Basic",
+	"Kotlin",
+	"MATLAB",
+	"Caml",
+	"Prolog",
+	"GML", // thirty
+	"Lua",
+	"PowerShell",
+	"D",
+	"PL/SQL",
+	"ABAP",
+	"Transact-SQL",
+	"VBScript",
+	"OCaml",
+	"TypeScript",
+	"Zig", // forty
+	"Dart",
+	"X++",
+	"Lisp",
+	"Scala",
+	"LabVIEW",
+	"Ladder Logic",
+	"VHDL",
+	"XSLT",
+	"Haskell",
+	"(Visual) FoxPro", //fifty
+];
+
+const fomatter = Intl.DateTimeFormat("zh-CN", {
+	year: "numeric",
+	month: "2-digit",
+	day: "2-digit",
+});
+const now = new Date();
+now.setFullYear(now.getFullYear() - 1); // past year
+const formattedTime = fomatter.format(now).replace(/\//g, "-");
+
+const octokit = new Octokit({
+	throttle: {
+		enabled: import.meta.env.PROD,
+	},
+});
+const results = Array.from({ length: languages.length }, () => ({
+	lang: "",
+	count: 0,
+}));
+for (const [i, lang] of languages.entries()) {
+	const queryString = `language:${lang} created:>=${formattedTime} stars:>=100`;
+
+	const resp = await octokit.request("GET /search/repositories", {
+		headers: {
+			"X-GitHub-Api-Version": "2026-03-10",
+		},
+		q: queryString,
+	});
+
+	if (import.meta.env.PROD) {
+		await sleep(6000); // github api allows 10 requests per minute
+	}
+
+	results[i].lang = lang;
+	results[i].count = resp.data.total_count;
+}
+
+results.sort((a, b) => b.count - a.count);
 ---
 
 <Layout>
-	<Welcome />
+	<header class="flex items-center">
+		<span class="mr-auto text-3xl">Lang Trends</span>
+		<a href="https://github.com/llmons/lang-trends">
+			<img src="/src/assets/github.svg" alt="github" width="50" />
+		</a>
+	</header>
+	<main>
+		<div id="description">
+			<span
+				>Languages ranked by new repositories with >100 stars on GitHub
+				in the past year</span
+			>
+		</div>
+		<div id="ranking" class="gird gap-2">
+			{
+				results.map((result, i) => (
+					<div>
+						{i+1} {result.lang}:{result.count}
+					</div>
+				))
+			}
+		</div>
+	</main>
+	<footer class="flex justify-center items-center">
+		<span class="text-gray-500">Data from GitHub Search API</span>
+	</footer>
 </Layout>
