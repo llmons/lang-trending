@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@keyframes percentage-load {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: var(--percentage-width);
+    }
+}
+
+@theme {
+    --animate-percentage-load: percentage-load 1s ease-in-out forwards;
+}
