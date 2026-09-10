@@ -3,17 +3,18 @@ import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
 import { Octokit } from "octokit";
 import { languages } from "../base/consts";
-import { sleep, getPassYear } from "../base/utils";
+import { sleep, getTimeRange } from "../base/utils";
 import Icon from "../components/Icon.astro";
 
+const timeRange = getTimeRange();
 const octokit = new Octokit({
 	throttle: {
 		enabled: import.meta.env.PROD,
 	},
 });
-const passYear = getPassYear();
+let sum = 0;
 for (const [i, lang] of languages.entries()) {
-	const queryString = `language:${lang} created:>=${passYear} stars:>=100`;
+	const queryString = `language:${lang} created:>=${timeRange.past} stars:>=100`;
 
 	const resp = await octokit.request("GET /search/repositories", {
 		headers: {
@@ -27,38 +28,65 @@ for (const [i, lang] of languages.entries()) {
 	}
 
 	languages[i].count = resp.data.total_count;
+	sum += resp.data.total_count;
 }
 
 languages.sort((a, b) => b.count - a.count);
 ---
 
 <Layout>
-	<header class="flex items-center p-2">
-		<span class="mr-auto text-3xl">Lang Trends</span>
-		<a href="https://github.com/llmons/lang-trends">
-			<Icon name="github" className="size-8"/>
+	<header class="flex items-center px-4 gap-4">
+		<span class="text-sm"
+			>Languages ranked by new repositories with <strong
+				>&gt;=100 stars</strong
+			> on GitHub in the past year</span
+		>
+		<a
+			href="https://github.com/llmons/lang-trends"
+			title="lang-trends"
+		>
+			<Icon name="github" className="size-8" />
 		</a>
 	</header>
-	<main>
-		<div class="p-2">
-			<span
-				>Languages ranked by new repositories with >100 stars on GitHub
-				in the past year</span
-			>
-		</div>
+	<main class="p-2">
 		<div class="grid gap-2">
 			{
-				languages.map((lang, i) => (
-					<div class="flex gap-2 items-center border p-2">
-						<span class="mr-auto">{i + 1}</span>
-						<Icon name={lang.name} className="size-8" />
-						<span>{lang.count}</span>
-					</div>
-				))
+				languages.map((lang, i) => {
+					const percentage =
+						Math.round((lang.count / sum) * 10000) / 100;
+					return (
+						<div
+							class="grid grid-rows-1 grid-cols-1 hover:transform hover:-translate-y-0.5 hover:transition hover:duration-200 hover:ease-in-out"
+							title={lang.alias}
+						>
+							<div
+								class="row-start-1 col-start-1 -z-1 h-full w-(--percentage-width) rounded-l-md relative after:content-[''] after:absolute after:bg-(--background) after:h-1/2 after:w-1/2 after:top-0 after:left-[calc(100%-0.5px)] after:[clip-path:polygon(0%_0%,100%_0%,0%_100%)]"
+								style={`--percentage-width: ${percentage}%; --background: ${lang.color}`}
+							>
+								<div class="h-full w-full bg-(--background) rounded-l-md [clip-path:polygon(0%_0%,100%_0%,100%_50%,50%_100%,0%_100%)]" />
+							</div>
+							<div
+								class="row-start-1 col-start-1 flex gap-4 items-center border-2 border-(--border-color) p-2 rounded-md"
+								style={`--border-color: ${lang.color}`}
+							>
+								<span class="mr-auto text-2xl text-white [-webkit-text-stroke:0.5px_black] select-none">
+									{lang.count}&nbsp;|&nbsp;
+									{percentage}%
+								</span>
+								<Icon name={lang.name} className="size-8" />
+								<span class="select-none">{i + 1}</span>
+							</div>
+						</div>
+					);
+				})
 			}
 		</div>
 	</main>
 	<footer class="flex justify-center items-center">
-		<span class="text-gray-500">Data from GitHub Search API</span>
+		<span class="text-gray-500 text-sm"
+			>Data from GitHub Search API&nbsp;|&nbsp;Updated at {
+				timeRange.current
+			}</span
+		>
 	</footer>
 </Layout>

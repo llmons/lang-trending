@@ -1,12 +1,22 @@
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const getPassYear = () => {
+interface TimeRange {
+    past: string;
+    current: string;
+}
+
+export const getTimeRange = (): TimeRange => {
     const fomatter = Intl.DateTimeFormat("zh-CN", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
     });
-    const now = new Date();
-    now.setFullYear(now.getFullYear() - 1); // past year
-    return fomatter.format(now).replace(/\//g, "-");
+    const current = new Date();
+    const past = structuredClone(current);
+    past.setFullYear(past.getFullYear() - 1); // past year
+
+    return {
+        past: fomatter.format(past).replace(/\//g, "-"),
+        current: fomatter.format(current).replace(/\//g, "-")
+    };
 };
