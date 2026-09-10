@@ -7,11 +7,21 @@ import { sleep, getTimeRange } from "../base/utils";
 import Icon from "../components/Icon.astro";
 
 const timeRange = getTimeRange();
-const octokit = new Octokit({
-	throttle: {
-		enabled: import.meta.env.PROD,
-	},
-});
+const octokit = new Octokit(
+	import.meta.env.PROD
+		? {
+				throttle: {
+					enabled: true,
+					onRateLimit: () => true,
+					onSecondaryRateLimit: () => true,
+				},
+			}
+		: {
+				throttle: {
+					enabled: false,
+				},
+			},
+);
 let sum = 0;
 for (const [i, lang] of languages.entries()) {
 	const queryString = `language:${lang} created:>=${timeRange.past} stars:>=100`;
@@ -36,11 +46,13 @@ languages.sort((a, b) => b.count - a.count);
 
 <Layout>
 	<header class="flex justify-end items-center px-4 gap-4">
-		<a href="https://github.com/llmons/lang-trends" title="lang-trends">
+		<a href="https://github.com/llmons/lang-trending" title="lang-trending">
 			<Icon name="github" className="size-8 dark:stroke-white" />
 		</a>
 	</header>
-	<main class="max-w-4xl justify-self-center grid grid-rows-[1fr_30fr] grid-cols-1 p-2">
+	<main
+		class="max-w-4xl justify-self-center grid grid-rows-[1fr_30fr] grid-cols-1 p-2"
+	>
 		<span class="p-2 select-none dark:text-white"
 			>Languages ranked by new repositories with <strong
 				>&gt;=100 stars</strong
@@ -70,8 +82,13 @@ languages.sort((a, b) => b.count - a.count);
 									{lang.count}&nbsp;|&nbsp;
 									{percentage}%
 								</span>
-								<Icon name={lang.name} className="size-8 dark:fill-white" />
-								<span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400 dark:text-white">{i + 1}</span>
+								<Icon
+									name={lang.name}
+									className="size-8 dark:fill-white"
+								/>
+								<span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400 dark:text-white">
+									{i + 1}
+								</span>
 							</div>
 						</div>
 					);
