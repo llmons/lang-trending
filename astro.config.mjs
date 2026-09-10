@@ -5,6 +5,8 @@ import { server } from "./src/mocks/node";
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://llmons.github.io',
+  base: '/lang-trending',
   vite: {
     plugins: [tailwindcss()],
   },

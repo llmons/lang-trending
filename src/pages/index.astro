@@ -47,62 +47,55 @@ languages.sort((a, b) => b.count - a.count);
 ---
 
 <Layout>
-    <header class="flex justify-end items-center px-4 gap-4">
+    <header class="px-4 flex justify-end items-center gap-4">
         <a href="https://github.com/llmons/lang-trending" title="lang-trending">
             <Icon name="github" className="size-8 dark:stroke-white" />
         </a>
     </header>
-    <main
-        class="max-w-4xl justify-self-center grid grid-rows-[1fr_30fr] grid-cols-1 p-2"
-    >
-        <span class="p-2 select-none dark:text-white"
-            >Languages ranked by new repositories with <strong
-                >&gt;=100 stars</strong
-            > on GitHub in the past year</span
-        >
+    <main class="max-w-4xl justify-self-center grid grid-rows-[1fr_30fr] grid-cols-1 p-2">
+        <span class="p-2 select-none dark:text-white">
+            Languages ranked by new repositories with{" "}
+            <strong>&gt;=100 stars</strong> on GitHub in the past year
+        </span>
         <div class="grid gap-2">
-            {
-                languages.map((lang, i) => {
-                    const percentage =
-                        Math.round((lang.count / sum) * 10000) / 100;
-                    return (
+            {languages.map((lang, i) => {
+                const percentage = Math.round((lang.count / sum) * 10000) / 100;
+                return (
+                    <div
+                        class="grid grid-rows-1 grid-cols-1 hover:transform hover:-translate-y-0.5 hover:transition hover:duration-200 hover:ease-in-out"
+                        title={lang.alias}
+                    >
                         <div
-                            class="grid grid-rows-1 grid-cols-1 hover:transform hover:-translate-y-0.5 hover:transition hover:duration-200 hover:ease-in-out"
-                            title={lang.alias}
+                            class="row-start-1 col-start-1 -z-1 h-full animate-percentage-load rounded-l-md relative after:content-[''] after:absolute after:bg-(--background) after:h-1/2 after:w-1/2 after:top-0 after:left-[calc(100%-0.5px)] after:[clip-path:polygon(0%_0%,100%_0%,0%_100%)]"
+                            style={`--percentage-width: ${percentage}%; --background: ${lang.color}`}
                         >
-                            <div
-                                class="row-start-1 col-start-1 -z-1 h-full animate-percentage-load rounded-l-md relative after:content-[''] after:absolute after:bg-(--background) after:h-1/2 after:w-1/2 after:top-0 after:left-[calc(100%-0.5px)] after:[clip-path:polygon(0%_0%,100%_0%,0%_100%)]"
-                                style={`--percentage-width: ${percentage}%; --background: ${lang.color}`}
-                            >
-                                <div class="h-full w-full bg-(--background) rounded-l-md [clip-path:polygon(0%_0%,100%_0%,100%_50%,50%_100%,0%_100%)]" />
-                            </div>
-                            <div
-                                class="row-start-1 col-start-1 flex gap-4 items-center border-2 border-(--border-color) p-2 rounded-md"
-                                style={`--border-color: ${lang.color}`}
-                            >
-                                <span class="mr-auto text-2xl font-mono font-bold text-white [-webkit-text-stroke:1px_black] dark:text-black dark:[-webkit-text-stroke:1px_white] select-none text-shadow-[2px_2px_2px] text-shadow-gray-400">
-                                    {lang.count}&nbsp;|&nbsp;
-                                    {percentage}%
-                                </span>
-                                <Icon
-                                    name={lang.name}
-                                    className="size-8 dark:fill-white"
-                                />
-                                <span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400 dark:text-white">
-                                    {i + 1}
-                                </span>
-                            </div>
+                            <div class="h-full w-full bg-(--background) rounded-l-md [clip-path:polygon(0%_0%,100%_0%,100%_50%,50%_100%,0%_100%)]" />
                         </div>
-                    );
-                })
-            }
+                        <div
+                            class="row-start-1 col-start-1 flex gap-4 items-center border-2 border-(--border-color) p-2 rounded-md"
+                            style={`--border-color: ${lang.color}`}
+                        >
+                            <span class="mr-auto text-2xl font-mono font-bold text-white [-webkit-text-stroke:1px_black] dark:text-black dark:[-webkit-text-stroke:1px_white] select-none text-shadow-[2px_2px_2px] text-shadow-gray-400">
+                                {lang.count}&nbsp;|&nbsp;
+                                {percentage}%
+                            </span>
+                            <Icon
+                                name={lang.name}
+                                className="size-8 dark:fill-white"
+                            />
+                            <span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400 dark:text-white">
+                                {i + 1}
+                            </span>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     </main>
     <footer class="flex justify-center items-center">
-        <span class="text-gray-500 text-sm select-none"
-            >Data from GitHub Search API&nbsp;|&nbsp;Updated at {
-                timeRange.current
-            }</span
-        >
+        <span class="text-gray-500 text-sm select-none">
+            Data from GitHub Search API&nbsp;|&nbsp;Updated at{" "}
+            {timeRange.current}
+        </span>
     </footer>
 </Layout>
