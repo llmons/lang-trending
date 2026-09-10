@@ -7,6 +7,7 @@ import { sleep, getTimeRange } from "../base/utils";
 import Icon from "../components/Icon.astro";
 
 const timeRange = getTimeRange();
+
 const octokit = new Octokit(
 	import.meta.env.PROD
 		? {
@@ -22,6 +23,7 @@ const octokit = new Octokit(
 				},
 			},
 );
+
 let sum = 0;
 for (const [i, lang] of languages.entries()) {
 	const queryString = `language:${lang} created:>=${timeRange.past} stars:>=100`;
@@ -33,7 +35,7 @@ for (const [i, lang] of languages.entries()) {
 		q: queryString,
 	});
 
-	if (import.meta.env.PROD) {
+	if (import.meta.env.PROD && i < languages.length - 1) {
 		await sleep(6000); // github api allows 10 requests per minute
 	}
 
