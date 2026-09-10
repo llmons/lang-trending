@@ -37,11 +37,11 @@ languages.sort((a, b) => b.count - a.count);
 <Layout>
 	<header class="flex justify-end items-center px-4 gap-4">
 		<a href="https://github.com/llmons/lang-trends" title="lang-trends">
-			<Icon name="github" className="size-8" />
+			<Icon name="github" className="size-8 dark:stroke-white" />
 		</a>
 	</header>
 	<main class="max-w-4xl justify-self-center grid grid-rows-[1fr_30fr] grid-cols-1 p-2">
-		<span class="p-2 select-none"
+		<span class="p-2 select-none dark:text-white"
 			>Languages ranked by new repositories with <strong
 				>&gt;=100 stars</strong
 			> on GitHub in the past year</span
@@ -66,12 +66,12 @@ languages.sort((a, b) => b.count - a.count);
 								class="row-start-1 col-start-1 flex gap-4 items-center border-2 border-(--border-color) p-2 rounded-md"
 								style={`--border-color: ${lang.color}`}
 							>
-								<span class="mr-auto text-2xl text-white [-webkit-text-stroke:0.5px_black] select-none text-shadow-[2px_2px_2px] text-shadow-gray-400">
+								<span class="mr-auto text-2xl font-mono font-bold text-white [-webkit-text-stroke:1px_black] dark:text-black dark:[-webkit-text-stroke:1px_white] select-none text-shadow-[2px_2px_2px] text-shadow-gray-400">
 									{lang.count}&nbsp;|&nbsp;
 									{percentage}%
 								</span>
-								<Icon name={lang.name} className="size-8" />
-								<span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400">{i + 1}</span>
+								<Icon name={lang.name} className="size-8 dark:fill-white" />
+								<span class="select-none basis-6 text-2xl font-bold text-shadow-[2px_2px_2px] text-shadow-gray-400 dark:text-white">{i + 1}</span>
 							</div>
 						</div>
 					);
