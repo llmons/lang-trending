@@ -1,6 +1,6 @@
 interface Language {
 	name: string;
-	alias:string;
+	alias: string;
 	color: string;
 	count: number;
 }
