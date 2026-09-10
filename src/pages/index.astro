@@ -26,7 +26,7 @@ const octokit = new Octokit(
 
 let sum = 0;
 for (const [i, lang] of languages.entries()) {
-    const queryString = `language:${lang} created:>=${timeRange.past} stars:>=100`;
+    const queryString = `language:${lang.alias} created:>=${timeRange.past} stars:>=100`;
 
     const resp = await octokit.request("GET /search/repositories", {
         headers: {
