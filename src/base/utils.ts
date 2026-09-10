@@ -1,4 +1,5 @@
-export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
 interface TimeRange {
     past: string;
@@ -17,6 +18,6 @@ export const getTimeRange = (): TimeRange => {
 
     return {
         past: fomatter.format(past).replace(/\//g, "-"),
-        current: fomatter.format(current).replace(/\//g, "-")
+        current: fomatter.format(current).replace(/\//g, "-"),
     };
 };
