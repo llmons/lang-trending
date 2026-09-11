@@ -5,6 +5,7 @@ import { Octokit } from "octokit";
 import { languages } from "../base/consts";
 import { sleep, getTimeRange } from "../base/utils";
 import Icon from "../components/Icon.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 
 const timeRange = getTimeRange();
 
@@ -48,10 +49,17 @@ languages.sort((a, b) => b.count - a.count);
 
 <Layout>
     <header class="px-4 flex justify-end items-center gap-6">
-        <a href="https://llmons.github.io/lang-trending/" title="pages: lang-trending">
-            <img src="/lang-trending/favicon.svg" alt="lang-trending" width="35" height="35"/>
+        <ThemeToggle />
+        <a
+            href="https://llmons.github.io/lang-trending/"
+            title="pages: lang-trending"
+        >
+            <Icon name="logo" className="size-8"/>
         </a>
-        <a href="https://github.com/llmons/lang-trending" title="github: lang-trending">
+        <a
+            href="https://github.com/llmons/lang-trending"
+            title="github: lang-trending"
+        >
             <Icon name="github" className="size-8 dark:stroke-white" />
         </a>
     </header>
@@ -102,3 +110,13 @@ languages.sort((a, b) => b.count - a.count);
         </span>
     </footer>
 </Layout>
+
+<script>
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    media.addEventListener("change", () => {
+        if (localStorage.getItem("theme") === "system") {
+            document.documentElement.classList.toggle("dark", media.matches);
+        }
+    });
+</script>

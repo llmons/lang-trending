@@ -3,10 +3,22 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href="/lang-trending/favicon.svg" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/lang-trending/favicon.svg"
+        />
         <link rel="icon" href="/lang-trending/favicon.ico" />
         <meta name="generator" content={Astro.generator} />
         <title>Lang Trending</title>
+        <script is:inline>
+            const theme = localStorage.getItem("theme") ?? "system";
+            const media = window.matchMedia("(prefers-color-scheme: dark)");
+            const dark =
+                theme === "dark" || (theme === "system" && media.matches);
+
+            document.documentElement.classList.toggle("dark", dark);
+        </script>
     </head>
     <body class="min-h-dvh grid w-dvw grid-rows-[1fr_25fr_1fr] grid-cols-1 bg-slate-50 dark:bg-slate-950">
         <slot />

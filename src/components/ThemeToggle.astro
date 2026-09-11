@@ -1,0 +1,51 @@
+---
+import Icon from "../components/Icon.astro";
+---
+
+<div class="flex gap-2 border-2 dark:border-white rounded-2xl px-2 py-1">
+    <button id="theme-system" class="cursor-pointer">
+        <Icon name="laptop" className="dark:text-white rounded-full" />
+    </button>
+    <button id="theme-toggle" class="cursor-pointer">
+        <Icon name="sun" className="dark:text-white hidden rounded-full" />
+        <Icon name="moon" className="dark:text-white hidden rounded-full" />
+        <Icon
+            name="loader-circle"
+            className="dark:text-white animate-spin rounded-full"
+        />
+    </button>
+</div>
+
+<script>
+    // init
+    const theme = localStorage.getItem("theme") ?? "system";
+    const themeSystem = document.querySelector("#theme-system");
+    const themeToggle = document.querySelector("#theme-toggle");
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyTheme = (theme: string) => {
+        const dark = theme === "dark" || (theme === "system" && media.matches);
+        document.documentElement.classList.toggle("dark", dark);
+        themeToggle?.children[0].classList.toggle("hidden", dark);
+        themeToggle?.children[1].classList.toggle("hidden", !dark);
+        themeToggle?.children[2].classList.toggle("hidden", true);
+    };
+    applyTheme(theme);
+
+    // listen
+    themeSystem?.addEventListener("click", () => {
+        applyTheme("system");
+        localStorage.setItem("theme", "system");
+    });
+
+    themeToggle?.addEventListener("click", () => {
+        const dark = document.documentElement.classList.toggle("dark");
+        applyTheme(dark ? "dark" : "light");
+        localStorage.setItem("theme", dark ? "dark" : "light");
+    });
+
+    media.addEventListener("change", () => {
+        if (localStorage.getItem("theme") === "system") {
+            applyTheme("system");
+        }
+    });
+</script>
