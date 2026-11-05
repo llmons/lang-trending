@@ -7,7 +7,7 @@ A daily-updated static site that ranks programming languages by the number of ne
 Every build is a fresh measurement:
 
 1. `astro build` computes the window — *today minus 365 days → today* (UTC), never hardcoded.
-2. It queries the public GitHub search API once per language per star tier: 29 mainstream languages × 3 tiers = **87 requests**, paced at exactly the rate limit of the current mode — the dedicated 30 requests/minute with the CI's auto-injected `GITHUB_TOKEN` (~4 minutes), or the shared unauthenticated pool of 10 requests/minute (~9 minutes).
+2. It queries the public GitHub search API once per language per star tier: 39 mainstream languages × 3 tiers = **117 requests**, paced at exactly the rate limit of the current mode — the dedicated 30 requests/minute with the CI's auto-injected `GITHUB_TOKEN` (~4.5 minutes), or the shared unauthenticated pool of 10 requests/minute (~12 minutes).
 3. The counts are baked into fully static pages — no client-side data fetching, no committed data files.
 
 Forks and mirrors are excluded from every query. The language catalog is hand-curated to common, mainstream languages only (see `src/lib/languages.ts`); niche and esoteric languages are intentionally out of scope. Rate-limit responses trigger retries with exponential backoff and whole-pipeline recovery rounds.

@@ -129,8 +129,8 @@ const base = import.meta.env.BASE_URL
           <code class="font-serif">retry-after</code> headers, and waits out the
           documented reset window when the budget runs dry. A full refresh —
           three tiers across {meta.languagesTracked} languages,{" "}
-          {meta.languagesTracked * 3} requests — takes about four minutes in CI
-          and nine minutes locally.
+          {meta.languagesTracked * 3} requests — takes under five minutes in CI
+          and under twelve minutes locally.
         </p>
       </div>
 
@@ -155,8 +155,12 @@ const base = import.meta.env.BASE_URL
         </h2>
         <ul class="mt-5 list-disc space-y-2 pl-5 leading-relaxed text-muted-foreground">
           <li>
-            Language tags come from GitHub's Linguist detection and can
-            occasionally mis-tag a repository.
+            A language tag is the repository's <em>primary</em> language from
+            GitHub's Linguist detection, and it can occasionally mis-tag a
+            repository. A repository that mixes several languages only counts
+            toward its primary one — crediting every language in every
+            repository would take one API call per repository, which no rate
+            limit could sustain.
           </li>
           <li>
             Counts can drift slightly between builds as the search index

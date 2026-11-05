@@ -7,10 +7,10 @@
  * then renders all pages as static HTML from it.
  *
  * Three queries per language, one per star tier: the repositories that
- * cleared 2 / 20 / 100 stars. 29 languages × 3 tiers = 87 requests. In CI
+ * cleared 2 / 20 / 100 stars. 39 languages × 3 tiers = 117 requests. In CI
  * the auto-injected `GITHUB_TOKEN` grants the dedicated authenticated limit
- * (30 req/min ≈ 4 min); locally the build runs unauthenticated (10 req/min
- * ≈ 9 min).
+ * (30 req/min ≈ 4.5 min); locally the build runs unauthenticated
+ * (10 req/min ≈ 12 min).
  *
  * `astro dev` re-evaluates this module once per dev-server session, so the
  * first page request after `astro dev` performs a full fetch.
@@ -19,7 +19,7 @@
  * ⚠ Server-only: never import a VALUE from this module in client code
  * (islands). The bundler would ship the fetch pipeline — including this
  * module's top-level await — into the browser bundle and every visitor
- * would start an 87-request fetch. Client code imports the data model
+ * would start a 117-request fetch. Client code imports the data model
  * from `@/lib/tiers` instead.
  */
 
@@ -55,7 +55,11 @@ function buildQuery(
   window: RollingWindow
 ): string {
   const stars = tier.starsQualifier ? `${tier.starsQualifier} ` : ""
-  return `language:${languageId} fork:false mirror:false ${stars}${createdQualifier(window)}`
+  // Multi-word language names ("Visual Basic .NET") must be double-quoted —
+  // unquoted, GitHub parses the remainder as free-text search and the count
+  // silently collapses to name/readme matches.
+  const language = languageId.includes(" ") ? `"${languageId}"` : languageId
+  return `language:${language} fork:false mirror:false ${stars}${createdQualifier(window)}`
 }
 
 /** Per-language, per-tier counts, filled by the fetch rounds. */

@@ -16,7 +16,11 @@ export const LANGUAGE_CATEGORIES = {
 export type CategoryId = keyof typeof LANGUAGE_CATEGORIES
 
 export interface LanguageMeta {
-  /** Identifier used in the GitHub search `language:` qualifier. */
+  /**
+   * Identifier used in the GitHub search `language:` qualifier. Multi-word
+   * names (e.g. "Visual Basic .NET") must be double-quoted in the query —
+   * the query builder in `data.ts` handles that.
+   */
   id: string
   /** Human-readable display name. */
   name: string
@@ -92,6 +96,13 @@ export const LANGUAGE_CATALOG: readonly LanguageMeta[] = [
     blurb: "Memory safety without a garbage collector.",
   },
   {
+    id: "Zig",
+    name: "Zig",
+    color: "#ec915c",
+    category: "general",
+    blurb: "A modern systems language and safer successor to C.",
+  },
+  {
     id: "PHP",
     name: "PHP",
     color: "#4F5D95",
@@ -134,18 +145,12 @@ export const LANGUAGE_CATALOG: readonly LanguageMeta[] = [
     blurb: "Functional programming on the JVM, powering big data stacks.",
   },
   {
-    id: "Haskell",
-    name: "Haskell",
-    color: "#5e5086",
+    id: "Erlang",
+    name: "Erlang",
+    color: "#B83998",
     category: "general",
-    blurb: "The reference point for purely functional programming.",
-  },
-  {
-    id: "Elixir",
-    name: "Elixir",
-    color: "#6e4a7e",
-    category: "general",
-    blurb: "Fault-tolerant concurrency on the Erlang VM.",
+    blurb:
+      "Fault-tolerant concurrency, the backbone of telecom infrastructure.",
   },
   {
     id: "Objective-C",
@@ -169,6 +174,35 @@ export const LANGUAGE_CATALOG: readonly LanguageMeta[] = [
     blurb: "The veteran of text processing and system scripting.",
   },
   {
+    id: "VBA",
+    name: "VBA",
+    color: "#867db1",
+    category: "general",
+    blurb: "Office automation and macros — the glue of business workflows.",
+  },
+  {
+    id: "VBScript",
+    name: "VBScript",
+    color: "#15dcdc",
+    category: "systems",
+    blurb: "Lightweight Windows scripting, the elder sibling of VBA.",
+  },
+  {
+    id: "Visual Basic 6.0",
+    name: "Visual Basic 6.0",
+    color: "#2c6353",
+    category: "general",
+    blurb:
+      "The classic Windows desktop language still running legacy business apps.",
+  },
+  {
+    id: "Visual Basic .NET",
+    name: "Visual Basic .NET",
+    color: "#945db7",
+    category: "general",
+    blurb: "Microsoft's modern reincarnation of BASIC on the .NET runtime.",
+  },
+  {
     id: "HTML",
     name: "HTML",
     color: "#e34c26",
@@ -190,18 +224,33 @@ export const LANGUAGE_CATALOG: readonly LanguageMeta[] = [
     blurb: "The approachable progressive JavaScript framework.",
   },
   {
+    id: "Svelte",
+    name: "Svelte",
+    color: "#ff3e00",
+    category: "web",
+    blurb: "A compiler-driven UI framework with no virtual DOM.",
+  },
+  {
+    id: "Astro",
+    name: "Astro",
+    color: "#ff5a03",
+    category: "web",
+    blurb:
+      "The content-first web framework that ships zero JavaScript by default.",
+  },
+  {
+    id: "Markdown",
+    name: "Markdown",
+    color: "#083fa1",
+    category: "web",
+    blurb: "The plain-text markup that documents the whole internet.",
+  },
+  {
     id: "R",
     name: "R",
     color: "#198CE7",
     category: "data",
     blurb: "The statistician's language of choice.",
-  },
-  {
-    id: "Julia",
-    name: "Julia",
-    color: "#a270ba",
-    category: "data",
-    blurb: "High-performance numerical computing without two languages.",
   },
   {
     id: "MATLAB",
@@ -211,11 +260,39 @@ export const LANGUAGE_CATALOG: readonly LanguageMeta[] = [
     blurb: "Numerical computing for engineering and academia.",
   },
   {
+    id: "SQL",
+    name: "SQL",
+    color: "#e38c00",
+    category: "data",
+    blurb: "The universal language of databases.",
+  },
+  {
+    id: "Jupyter Notebook",
+    name: "Jupyter Notebook",
+    color: "#DA5B0B",
+    category: "data",
+    blurb: "The interactive notebook format of data science.",
+  },
+  {
+    id: "Fortran",
+    name: "Fortran",
+    color: "#4d41b1",
+    category: "data",
+    blurb: "The original scientific computing language, still fast at seventy.",
+  },
+  {
     id: "Shell",
     name: "Shell",
     color: "#89e051",
     category: "systems",
     blurb: "The glue that holds every system together.",
+  },
+  {
+    id: "PowerShell",
+    name: "PowerShell",
+    color: "#012456",
+    category: "systems",
+    blurb: "Windows' object-oriented shell and automation language.",
   },
   {
     id: "Assembly",

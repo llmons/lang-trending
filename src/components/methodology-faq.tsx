@@ -29,6 +29,12 @@ const FAQS = [
       "Each tier is its own GitHub search query with a stars qualifier: stars:>=2, stars:>=20, or stars:>=100. Every threshold is inclusive, and the tiers are nested — everything in the ≥100 tier is also counted in the ≥20 and ≥2 tiers. There is deliberately no zero-star tier: repositories with fewer than 2 stars, dominated by static-site detritus, are excluded from every count. Stars are counted at fetch time, so a repository that crosses a threshold right after a build is counted in its old tier until the next daily build.",
   },
   {
+    question:
+      "Does a multi-language repository count toward each of its languages?",
+    answer:
+      "No. GitHub's search API tags every repository with a single primary language — the one Linguist detects as dominant. A repository that mixes several languages counts only toward its primary one. Crediting secondary languages would require fetching each repository's language breakdown individually, millions of calls per build, and GitHub offers no aggregate endpoint for it — so the index measures primary-language activity, the same basis as GitHub's own language stats.",
+  },
+  {
     question: "How often does the data update?",
     answer:
       "Daily. A scheduled CI build re-fetches every count and redeploys the site each day. The one-year window is recomputed at build time from the current date, so the ranking always reflects the most recent 365 days.",

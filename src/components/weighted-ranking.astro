@@ -15,7 +15,7 @@ interface Props {
 }
 
 const { ranked, total } = Astro.props
-const top5 = ranked.slice(0, 5)
+const top10 = ranked.slice(0, 10)
 
 const weightLine = STAR_TIERS.map(
   (tier) => `${tier.label} ×${TIER_WEIGHTS[tier.id]}`
@@ -32,7 +32,7 @@ const weightLine = STAR_TIERS.map(
   </CardHeader>
   <CardContent className="space-y-8">
     <ol class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {top5.map((language) => (
+      {top10.map((language) => (
         <li class="border border-border p-5">
           <div class="flex items-center justify-between gap-3">
             <span

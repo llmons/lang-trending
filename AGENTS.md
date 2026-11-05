@@ -3,7 +3,7 @@
 
 ## Project Positioning
 - A data-driven, fully static site that surfaces language popularity trends from public GitHub repository data.
-- Rankings focus on **common/mainstream programming languages only** — a hand-curated catalog of 29 in `src/lib/languages.ts` — not the full set of languages available on GitHub. Niche, esoteric, or non-general-purpose languages are intentionally excluded from the ranking scope.
+- Rankings focus on **common/mainstream programming languages only** — a hand-curated catalog of 39 in `src/lib/languages.ts` — not the full set of languages available on GitHub. Niche, esoteric, or non-general-purpose languages are intentionally excluded from the ranking scope.
 - The site is rebuilt and redeployed automatically on a daily schedule (GitHub Actions → GitHub Pages), always reflecting the most recent rolling one-year window at run time.
 
 ## Tech Stack
@@ -25,8 +25,9 @@ All code, tooling, and project configuration must stay consistent with this defi
 
 ## Data Source Notes
 - Data is sourced from the public GitHub search API. **No self-managed credentials**: CI uses the automatically injected `GITHUB_TOKEN` (dedicated 30 searches/min), local builds run unauthenticated (shared 10 searches/min per IP).
+- The `language:` qualifier matches each repository's **primary language** (Linguist's dominant tag). A multi-language repository counts only toward its primary language; crediting secondary languages is infeasible (no aggregate API — it would take one request per repository).
 - The fetch runs **inside `astro build`** (top-level await in `src/lib/data.ts`, evaluated once per build and shared by all pages).
-- One query per language per star tier: 29 languages × 3 tiers = **87 requests** per build (≈4 minutes authenticated in CI, ≈9 minutes unauthenticated locally). The weighted composite in Field notes is pure arithmetic on these counts — it never adds requests.
+- One query per language per star tier: 39 languages × 3 tiers = **117 requests** per build (≈4.5 minutes authenticated in CI, ≈12 minutes unauthenticated locally). Multi-word language names are double-quoted in the query. The weighted composite in Field notes is pure arithmetic on these counts — it never adds requests.
 - Pacing matches the mode's limit exactly — one request every 2s (authenticated) or 6s (unauthenticated). `403`/`429` responses trigger rate-limit waits (≥30s) and retries with exponential backoff; languages that still fail are retried in whole-pipeline recovery rounds after cooling down.
 - If the fetch ultimately fails, the build fails too — the previously deployed site stays online until the next successful build. There is no stale-data fallback.
 
