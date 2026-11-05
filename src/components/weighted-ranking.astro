@@ -1,0 +1,84 @@
+---
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { formatCompact, formatPercent } from "@/lib/format"
+import { STAR_TIERS, TIER_WEIGHTS, type WeightedLanguage } from "@/lib/tiers"
+
+interface Props {
+  ranked: WeightedLanguage[]
+  total: number
+}
+
+const { ranked, total } = Astro.props
+const top5 = ranked.slice(0, 5)
+
+const weightLine = STAR_TIERS.map(
+  (tier) => `${tier.label} ×${TIER_WEIGHTS[tier.id]}`
+).join(" · ")
+---
+
+<Card className="gap-6 md:col-span-2">
+  <CardHeader>
+    <CardTitle>The weighted ranking</CardTitle>
+    <CardDescription>
+      Four tiers folded into one composite — the harder a repository was to
+      earn, the more it counts.
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-8">
+    <ol class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {top5.map((language) => (
+        <li class="border border-border p-5">
+          <div class="flex items-center justify-between gap-3">
+            <span
+              class:list={[
+                "font-serif text-3xl leading-none tabular-nums",
+                language.rank === 1
+                  ? "text-viz-accent"
+                  : "text-muted-foreground",
+              ]}
+            >
+              {String(language.rank).padStart(2, "0")}
+            </span>
+            <span
+              class="size-2.5 rounded-full"
+              style={`background-color: ${language.color}`}
+              aria-hidden="true"
+            ></span>
+          </div>
+          <h3 class="mt-4 font-heading text-sm font-semibold tracking-wider uppercase">
+            {language.name}
+          </h3>
+          <p class="mt-2 font-serif text-2xl tabular-nums">
+            {formatCompact(language.score)}
+          </p>
+          <p class="mt-1 text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
+            weighted score
+          </p>
+          <div class="mt-4 flex items-baseline justify-between gap-2 text-xs text-muted-foreground">
+            <span>{formatPercent(total > 0 ? language.score / total : 0)}</span>
+            <span>of the composite</span>
+          </div>
+          <div class="mt-1.5 h-1.5 bg-muted">
+            <div
+              class="h-full bg-viz-accent"
+              style={`width: ${Math.max((language.score / Math.max(total, 1)) * 100, 2)}%`}
+            ></div>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="text-xs leading-relaxed text-muted-foreground">
+      <span class="font-semibold tracking-widest uppercase">Weighting</span> —{" "}
+      {weightLine}. Tiers are nested, so a repository that cleared every
+      threshold scores 1+2+4+8 = 15 points, one below 10 stars scores 1. Derived
+      from the same {STAR_TIERS.length} queries per language — no extra
+      requests.
+    </p>
+  </CardContent>
+</Card>

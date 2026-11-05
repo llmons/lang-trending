@@ -35,6 +35,7 @@ import {
 } from "@/lib/languages"
 import {
   STAR_TIERS,
+  TIER_WEIGHTS,
   type RankedLanguage,
   type Rankings,
   type RankingsMeta,
@@ -163,6 +164,23 @@ async function fetchRankings(): Promise<Rankings> {
     }
   })
 
+  // Composite score: each tier count × its weight (higher star thresholds
+  // count for more). Derived entirely from the counts above — no extra fetches.
+  const weighted = LANGUAGE_CATALOG.map((language) => {
+    const score = STAR_TIERS.reduce((sum, tier) => {
+      const repos = counts.get(`${language.id}:${tier.id}`)
+      if (repos === undefined) {
+        throw new Error(`Missing ${tier.id} count for ${language.id}`)
+      }
+      return sum + repos * TIER_WEIGHTS[tier.id]
+    }, 0)
+    return { ...language, score, rank: 0 }
+  }).sort((a, b) => b.score - a.score)
+
+  weighted.forEach((language, index) => {
+    language.rank = index + 1
+  })
+
   return {
     meta: {
       generatedAt: new Date().toISOString(),
@@ -170,6 +188,10 @@ async function fetchRankings(): Promise<Rankings> {
       languagesTracked: LANGUAGE_CATALOG.length,
     },
     tiers,
+    weighted: {
+      total: weighted.reduce((sum, language) => sum + language.score, 0),
+      ranked: weighted,
+    },
     categories,
   }
 }

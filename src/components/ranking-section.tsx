@@ -83,17 +83,21 @@ export default function RankingSection({
 }) {
   return (
     <Tabs defaultValue="all">
-      <TabsList
-        variant="line"
-        className="mb-10 w-full gap-8 border-b border-border"
-        aria-label="Star threshold"
-      >
-        {STAR_TIERS.map((tier) => (
-          <TabsTrigger key={tier.id} value={tier.id}>
-            {tier.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      {/* Sticks below the site header (h-16) while the ranking scrolls, so the
+          tier can be switched mid-table without scrolling back to the top. */}
+      <div className="sticky top-16 z-40 bg-background">
+        <TabsList
+          variant="line"
+          className="mb-10 w-full gap-8 border-b border-border"
+          aria-label="Star threshold"
+        >
+          {STAR_TIERS.map((tier) => (
+            <TabsTrigger key={tier.id} value={tier.id}>
+              {tier.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
       {STAR_TIERS.map((tier) => (
         <TabsContent key={tier.id} value={tier.id} className="space-y-6">
           <Podium tier={tiers[tier.id]} />

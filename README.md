@@ -1,6 +1,6 @@
 # lang.trending
 
-A daily-updated static site that ranks programming languages by the number of new public GitHub repositories created within a rolling one-year window — across four star thresholds: **all repos**, **>10 stars**, **>50 stars**, **>100 stars**.
+A daily-updated static site that ranks programming languages by the number of new public GitHub repositories created within a rolling one-year window — across four inclusive star tiers: **all repos**, **≥10 stars**, **≥50 stars**, **≥100 stars** — plus a weighted composite that folds the four tiers into one score (weights 1×/2×/4×/8×, derived from the same counts).
 
 ## How it works
 

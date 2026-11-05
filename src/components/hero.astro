@@ -113,7 +113,7 @@ const base = import.meta.env.BASE_URL
       <div class={statClass}>
         <dt class={statLabelClass}>Repos with 10+ stars</dt>
         <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
-          {formatCompact(tiers.gt10.total)}
+          {formatCompact(tiers.ge10.total)}
         </dd>
         <p class={statNoteClass}>of the year's new repositories</p>
       </div>
