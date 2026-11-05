@@ -55,22 +55,30 @@ function readRateLimit(res: Response): RateLimitInfo {
 /**
  * Wait until the API budget is replenished.
  * Returns `true` if it waited, so the caller knows to retry.
+ *
+ * Two distinct situations share this path:
+ * - Primary bucket: `x-ratelimit-reset` names the exact moment the budget
+ *   refills (including the preemptive case where a request succeeded but
+ *   `x-ratelimit-remaining` hit 0). Waiting until then is sufficient.
+ * - Secondary rate limit: `retry-after` can be as short as a few seconds
+ *   while the throttle is still active — so a real cooling floor applies.
  */
 async function waitForBudget(
   info: RateLimitInfo,
   log?: (msg: string) => void
 ): Promise<boolean> {
-  const parsed =
-    info.retryAfter !== null
-      ? Number(info.retryAfter)
-      : info.reset !== null
-        ? Number(info.reset) - Date.now() / 1000
-        : 60
+  const retryAfter = info.retryAfter !== null ? Number(info.retryAfter) : NaN
+  const resetIn =
+    info.reset !== null ? Number(info.reset) - Date.now() / 1000 : NaN
 
-  // Secondary rate limits need real cooling — GitHub's retry-after can be
-  // as short as a few seconds while the throttle is still active, so wait
-  // at least 30s before knocking again.
-  const waitSeconds = Math.max(Number.isFinite(parsed) ? parsed : 60, 30)
+  let waitSeconds: number
+  if (Number.isFinite(retryAfter)) {
+    waitSeconds = Math.max(retryAfter, 30)
+  } else if (Number.isFinite(resetIn)) {
+    waitSeconds = Math.max(resetIn, 1) + 1
+  } else {
+    waitSeconds = 60
+  }
 
   log?.(`  · rate-limited — waiting ${Math.ceil(waitSeconds)}s before retrying`)
   await sleep(Math.ceil(waitSeconds) * 1000 + 1000)
