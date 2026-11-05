@@ -21,13 +21,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 12
+      # pnpm version comes from the `packageManager` field in package.json.
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -38,7 +37,7 @@ jobs:
       - run: pnpm run lint
 
       # `astro build` fetches the ranking from the public GitHub search API
-      # itself (~7 min, throttled) and bakes it into static pages. On failure
+      # itself (~12 min, throttled) and bakes it into static pages. On failure
       # the build fails and the previously deployed site stays online.
       - run: pnpm run build
         env:
@@ -46,7 +45,7 @@ jobs:
           ASTRO_BASE: /${{ github.event.repository.name }}/
           ASTRO_SITE: https://${{ github.repository_owner }}.github.io
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -58,4 +57,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
