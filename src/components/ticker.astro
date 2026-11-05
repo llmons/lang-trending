@@ -1,0 +1,70 @@
+---
+import type { RankedLanguage } from "@/lib/data"
+import { formatCompact } from "@/lib/format"
+
+interface Props {
+  ranked: RankedLanguage[]
+}
+
+const { ranked } = Astro.props
+
+const items = ranked.map((language) => ({
+  name: language.name,
+  repos: formatCompact(language.repos),
+}))
+---
+
+<section
+  class="overflow-hidden border-b border-border"
+  aria-label="Language index ticker"
+>
+  <div class="ticker flex">
+    <ul class="ticker-track flex shrink-0 items-center py-4">
+      {items.map((item) => (
+        <li class="flex items-center whitespace-nowrap">
+          <span class="pl-10 text-xs font-semibold tracking-widest uppercase">
+            {item.name}
+          </span>
+          <span class="pl-2.5 font-serif text-sm text-muted-foreground tabular-nums">
+            {item.repos}
+          </span>
+          <span class="pl-10 text-viz-accent" aria-hidden="true">
+            ·
+          </span>
+        </li>
+      ))}
+    </ul>
+    <ul class="ticker-track flex shrink-0 items-center py-4" aria-hidden="true">
+      {items.map((item) => (
+        <li class="flex items-center whitespace-nowrap">
+          <span class="pl-10 text-xs font-semibold tracking-widest uppercase">
+            {item.name}
+          </span>
+          <span class="pl-2.5 font-serif text-sm text-muted-foreground tabular-nums">
+            {item.repos}
+          </span>
+          <span class="pl-10 text-viz-accent">·</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ticker-track {
+    animation: ticker-marquee 80s linear infinite;
+  }
+  .ticker:hover .ticker-track {
+    animation-play-state: paused;
+  }
+  @keyframes ticker-marquee {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+  }
+</style>

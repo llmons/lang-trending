@@ -1,17 +1,86 @@
 ---
+import CategoryBreakdown from "@/components/category-breakdown.astro"
+import Concentration from "@/components/concentration.astro"
+import Hero from "@/components/hero.astro"
+import MethodologyCard from "@/components/methodology-card.astro"
+import QualityLadder from "@/components/quality-ladder.astro"
+import RankingSection from "@/components/ranking-section"
+import SectionHeading from "@/components/section-heading.astro"
+import Ticker from "@/components/ticker.astro"
 import Layout from "@/layouts/main.astro"
-import { Button } from "@/components/ui/button"
+import { loadRankings } from "@/lib/data"
+import { formatDate } from "@/lib/format"
+
+const data = loadRankings()
+const { meta, tiers } = data
+
+const top3 = tiers.all.ranked.slice(0, 3)
+const top3Share = top3.reduce((sum, language) => sum + language.share, 0)
+const top10Share = tiers.all.ranked
+  .slice(0, 10)
+  .reduce((sum, language) => sum + language.share, 0)
+
+const description =
+  `Ranking of programming languages by the number of new GitHub repositories ` +
+  `created between ${formatDate(meta.window.from)} and ${formatDate(meta.window.to)}, ` +
+  `with star thresholds from 10 to 100. Updated daily from the public GitHub search API.`
+
+const datasetSchema = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "lang.trending — programming language ranking",
+  description,
+  temporalCoverage: `${meta.window.from}/${meta.window.to}`,
+  dateCreated: meta.generatedAt,
+  isAccessibleForFree: true,
+}
 ---
 
-<Layout>
-  <div class="flex min-h-svh p-6">
-    <div class="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-      <div>
-        <h1 class="font-medium">Project ready!</h1>
-        <p>You may now add components and start building.</p>
-        <p>We've already added the button component for you.</p>
-        <Button client:load className="mt-2">Button</Button>
+<Layout
+  title="lang.trending — what the world is building"
+  description={description}
+>
+  <Hero data={data} />
+  <Ticker ranked={tiers.all.ranked} />
+
+  <section
+    id="ranking"
+    class="mx-auto w-full max-w-6xl scroll-mt-24 px-6 py-20 md:py-28"
+  >
+    <SectionHeading
+      index="01"
+      title="The ranking"
+      aside={`${meta.languagesTracked} languages · ${formatDate(meta.window.from)} → ${formatDate(meta.window.to)}`}
+      description="New public GitHub repositories created in the last year, counted per language. Forks and mirrors excluded. Switch the tier to see how the ranking shifts when only starred repositories count."
+    />
+    <RankingSection tiers={tiers} client:load />
+  </section>
+
+  <section id="insights" class="scroll-mt-24 border-t border-border">
+    <div class="mx-auto w-full max-w-6xl px-6 py-20 md:py-28">
+      <SectionHeading
+        index="02"
+        title="Field notes"
+        aside="derived from the same fetch"
+        description="Four ways to read the year: where the new code concentrated, how many repositories cleared each star threshold, how much the leaders dominate, and why the numbers can be trusted."
+      />
+      <div class="grid gap-6 md:grid-cols-2">
+        <CategoryBreakdown categories={data.categories} />
+        <QualityLadder tiers={tiers} />
+        <Concentration
+          top3Names={top3.map((language) => language.name)}
+          top3Share={top3Share}
+          top10Share={top10Share}
+          remaining={tiers.all.ranked.length - 10}
+        />
+        <MethodologyCard />
       </div>
     </div>
-  </div>
+  </section>
+
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(datasetSchema)}
+  />
 </Layout>

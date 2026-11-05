@@ -1,15 +1,65 @@
 ---
 import "@/styles/global.css"
+
+import SiteFooter from "@/components/site-footer.astro"
+import SiteHeader from "@/components/site-header.astro"
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = "lang.trending — what the world is building",
+  description = "A daily-updated ranking of programming languages by the number of new GitHub repositories created in a rolling one-year window.",
+} = Astro.props
+
+const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site) : null
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#101012" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Astro App</title>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl.href} />}
+    <script is:inline>
+      // Resolve the theme before first paint (dark is the default).
+      // A `?theme=light|dark` query param overrides the stored preference.
+      try {
+        const forced = new URLSearchParams(location.search).get("theme")
+        const stored = localStorage.getItem("lang-trending:theme")
+        const dark = forced
+          ? forced === "dark"
+          : stored
+            ? stored === "dark"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+        document.documentElement.classList.toggle("dark", dark)
+        document.documentElement.style.colorScheme = dark ? "dark" : "light"
+      } catch {
+        document.documentElement.classList.add("dark")
+      }
+    </script>
   </head>
-  <body>
-    <slot />
+  <body class="flex min-h-svh flex-col bg-background text-foreground antialiased">
+    <a
+      href="#content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:bg-background focus:px-4 focus:py-2 focus:ring-1 focus:ring-border"
+    >
+      Skip to content
+    </a>
+    <SiteHeader />
+    <main id="content" class="grow">
+      <slot />
+    </main>
+    <SiteFooter />
   </body>
 </html>

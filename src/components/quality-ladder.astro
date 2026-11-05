@@ -1,0 +1,55 @@
+---
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { STAR_TIERS, type Rankings } from "@/lib/data"
+import { formatCompact, formatPercent } from "@/lib/format"
+
+interface Props {
+  tiers: Rankings["tiers"]
+}
+
+const { tiers } = Astro.props
+
+const rows = STAR_TIERS.map((tier) => ({
+  label: tier.label,
+  total: tiers[tier.id].total,
+  share: tiers[tier.id].total / Math.max(tiers.all.total, 1),
+}))
+---
+
+<Card className="gap-6">
+  <CardHeader>
+    <CardTitle>The quality ladder</CardTitle>
+    <CardDescription>
+      How many of the year's new repositories cleared each star threshold.
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-7">
+    {rows.map((row) => (
+      <div class="space-y-2">
+        <div class="flex items-baseline justify-between gap-4">
+          <span class="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+            {row.label}
+          </span>
+          <span class="font-serif text-lg tabular-nums">
+            {formatCompact(row.total)}
+            <span class="ml-2 text-xs text-muted-foreground">
+              {formatPercent(row.share)}
+            </span>
+          </span>
+        </div>
+        <div class="h-2 bg-muted">
+          <div
+            class="h-full bg-viz-accent"
+            style={`width: ${Math.max(row.share * 100, 0.5)}%`}
+          ></div>
+        </div>
+      </div>
+    ))}
+  </CardContent>
+</Card>

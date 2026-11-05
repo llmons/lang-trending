@@ -1,0 +1,69 @@
+---
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import type { CategoryShare } from "@/lib/data"
+import { formatPercent } from "@/lib/format"
+
+interface Props {
+  categories: CategoryShare[]
+}
+
+const { categories } = Astro.props
+
+// Static class names so Tailwind can see them (never built dynamically).
+const SERIES_CLASSES = [
+  "bg-viz-series-1",
+  "bg-viz-series-2",
+  "bg-viz-series-3",
+  "bg-viz-series-4",
+]
+
+const barLabel = categories
+  .map((category) => `${category.label} ${formatPercent(category.share)}`)
+  .join(", ")
+---
+
+<Card className="gap-6">
+  <CardHeader>
+    <CardTitle>The center of gravity</CardTitle>
+    <CardDescription>
+      Where the year's new repositories landed, by language family.
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-6">
+    <div
+      class="flex h-3 w-full gap-0.5"
+      role="img"
+      aria-label={`Share of new repositories by language family: ${barLabel}`}
+    >
+      {categories.map((category, index) => (
+        <div
+          class={SERIES_CLASSES[index] ?? SERIES_CLASSES[0]}
+          style={`width: ${Math.max(category.share * 100, 1)}%`}
+        ></div>
+      ))}
+    </div>
+    <ul class="space-y-2.5">
+      {categories.map((category, index) => (
+        <li class="flex items-center gap-3 text-sm">
+          <span
+            class={[
+              "size-2 shrink-0",
+              SERIES_CLASSES[index] ?? SERIES_CLASSES[0],
+            ].join(" ")}
+            aria-hidden="true"
+          ></span>
+          <span class="text-muted-foreground">{category.label}</span>
+          <span class="ml-auto font-serif tabular-nums">
+            {formatPercent(category.share)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  </CardContent>
+</Card>

@@ -1,0 +1,82 @@
+---
+import { Separator } from "@/components/ui/separator"
+import Logo from "@/components/logo.astro"
+import { githubSearchUrl, loadRankings } from "@/lib/data"
+import { formatDate, formatDateTime } from "@/lib/format"
+
+const { meta } = loadRankings()
+const sourceUrl = githubSearchUrl(meta.window)
+---
+
+<footer class="border-t border-border">
+  <div class="mx-auto w-full max-w-6xl px-6">
+    <p
+      class="pt-12 font-serif text-[clamp(2.5rem,9vw,6.5rem)] leading-none tracking-tight text-border select-none"
+      aria-hidden="true"
+    >
+      lang·trending
+    </p>
+
+    <div class="grid gap-10 py-14 md:grid-cols-[1.5fr_1fr_1fr]">
+      <div class="space-y-4">
+        <Logo />
+        <p class="max-w-sm text-sm leading-relaxed text-muted-foreground">
+          A daily index of what the world is building — programming languages
+          ranked by the number of new public GitHub repositories created in a
+          rolling one-year window.
+        </p>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <p class="text-xs font-semibold tracking-widest uppercase">The data</p>
+        <ul class="space-y-2 text-muted-foreground">
+          <li>
+            Window: {formatDate(meta.window.from)} →{" "}
+            {formatDate(meta.window.to)}
+          </li>
+          <li>{meta.languagesTracked} mainstream languages tracked</li>
+          <li>Public GitHub search API, no credentials</li>
+        </ul>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <p class="text-xs font-semibold tracking-widest uppercase">Elsewhere</p>
+        <ul class="space-y-2 text-muted-foreground">
+          <li>
+            <a class="transition-colors hover:text-foreground" href="/#ranking">
+              The ranking
+            </a>
+          </li>
+          <li>
+            <a
+              class="transition-colors hover:text-foreground"
+              href="/methodology"
+            >
+              Methodology
+            </a>
+          </li>
+          <li>
+            <a
+              class="transition-colors hover:text-foreground"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Live GitHub search
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <Separator />
+
+    <div class="flex flex-col gap-2 py-6 text-xs tracking-wider uppercase text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <p>© {new Date().getFullYear()} lang.trending</p>
+      <p>
+        Last generated {formatDateTime(meta.generatedAt)} · fetched live at
+        build time
+      </p>
+    </div>
+  </div>
+</footer>

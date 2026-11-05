@@ -1,0 +1,121 @@
+---
+import { RiArrowDownLine } from "@remixicon/react"
+
+import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
+import type { Rankings } from "@/lib/data"
+import { formatCompact, formatDate } from "@/lib/format"
+
+interface Props {
+  data: Rankings
+}
+
+const { data } = Astro.props
+const { meta, tiers } = data
+
+// Days since GitHub's founding (2008-04-10) — a playful "issue number".
+const daysSinceStart = Math.floor(
+  (Date.now() - Date.UTC(2008, 3, 10)) / 86_400_000
+)
+
+const statClass = "border-l-2 border-border pl-4"
+const statLabelClass =
+  "text-[0.625rem] font-semibold tracking-widest uppercase text-muted-foreground"
+const statNoteClass = "mt-1 text-xs text-muted-foreground"
+---
+
+<section class="relative overflow-hidden border-b border-border">
+  <!-- decorative layers -->
+  <div
+    class="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(50rem_circle_at_85%_-20%,var(--viz-accent)/10%,transparent_60%)]"
+    aria-hidden="true"
+  ></div>
+  <p
+    class="pointer-events-none absolute -top-8 right-4 font-serif text-[12rem] leading-none font-bold text-transparent select-none [-webkit-text-stroke:1px_var(--viz-track)] md:-top-14 md:text-[20rem]"
+    aria-hidden="true"
+  >
+    365
+  </p>
+
+  <div class="relative mx-auto w-full max-w-6xl px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+    <div class="flex flex-wrap items-center gap-3">
+      <Badge>Issue № {daysSinceStart.toLocaleString("en")}</Badge>
+      <Badge>
+        Live data
+        <span
+          class="ml-1.5 inline-block size-1.5 animate-pulse rounded-full bg-viz-accent"
+          aria-hidden="true"
+        ></span>
+      </Badge>
+      <Badge variant="secondary">
+        {formatDate(meta.window.from)} → {formatDate(meta.window.to)}
+      </Badge>
+    </div>
+
+    <h1 class="mt-10 max-w-4xl text-5xl leading-[0.98] font-medium tracking-tight text-balance sm:text-6xl md:text-7xl lg:text-8xl">
+      What the world is <em class="text-viz-accent italic">building</em>.
+    </h1>
+
+    <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+      One year of public GitHub repositories, counted per programming language
+      and ranked every day. No credentials, no opinions — just the pace at which
+      each language is picked up.
+    </p>
+
+    <div class="mt-10 flex flex-wrap gap-4">
+      <a
+        href="#ranking"
+        class={buttonVariants({ variant: "default", size: "lg" })}
+      >
+        See the ranking
+        <RiArrowDownLine data-icon="inline-end" />
+      </a>
+      <a
+        href="/methodology"
+        class={buttonVariants({ variant: "outline", size: "lg" })}
+      >
+        How it's measured
+      </a>
+    </div>
+
+    <dl class="mt-16 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
+      <div class={statClass}>
+        <dt class={statLabelClass}>New repositories</dt>
+        <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
+          {formatCompact(tiers.all.total)}
+        </dd>
+        <p class={statNoteClass}>across the tracked languages</p>
+      </div>
+
+      <div class={statClass}>
+        <dt class={statLabelClass}>Languages tracked</dt>
+        <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
+          {meta.languagesTracked}
+        </dd>
+        <p class={statNoteClass}>mainstream, hand-curated</p>
+      </div>
+
+      <div class={statClass}>
+        <dt class={statLabelClass}>The window</dt>
+        <dd class="mt-2 font-heading text-xl font-bold tabular-nums md:text-2xl">
+          {formatDate(meta.window.from)}
+          <span class="mx-1.5 font-serif text-muted-foreground">→</span>
+          {formatDate(meta.window.to)}
+        </dd>
+        <p class={statNoteClass}>rolling one year, computed at build time</p>
+      </div>
+
+      <div class={statClass}>
+        <dt class={statLabelClass}>Repos with 10+ stars</dt>
+        <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
+          {formatCompact(tiers.gt10.total)}
+        </dd>
+        <p class={statNoteClass}>of the year's new repositories</p>
+      </div>
+    </dl>
+  </div>
+</section>

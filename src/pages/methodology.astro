@@ -1,0 +1,187 @@
+---
+import { RiArrowLeftLine } from "@remixicon/react"
+
+import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
+import MethodologyFaq from "@/components/methodology-faq"
+import { Separator } from "@/components/ui/separator"
+import Layout from "@/layouts/main.astro"
+import { loadRankings } from "@/lib/data"
+import { formatDate } from "@/lib/format"
+
+const { meta } = loadRankings()
+
+const queryExample = `language:JavaScript fork:false mirror:false stars:>100 created:${meta.window.from}..${meta.window.to}`
+const apiUrl = `https://api.github.com/search/repositories?q=${encodeURIComponent(queryExample)}&per_page=1`
+
+const sectionHeadingClass =
+  "flex items-baseline gap-4 font-heading text-lg font-semibold tracking-widest uppercase md:text-xl"
+---
+
+<Layout
+  title="Methodology — lang.trending"
+  description="How lang.trending measures programming language popularity: GitHub search queries, a rolling one-year window, and a throttled, unauthenticated pipeline."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-16 pb-24 md:pt-20">
+    <a href="/" class={buttonVariants({ variant: "ghost", size: "sm" })}>
+      <RiArrowLeftLine data-icon="inline-start" />
+      Back to the ranking
+    </a>
+
+    <div class="mt-10 flex flex-wrap gap-3">
+      <Badge variant="secondary">
+        Window: {formatDate(meta.window.from)} → {formatDate(meta.window.to)}
+      </Badge>
+      <Badge variant="secondary">{meta.languagesTracked} languages</Badge>
+      <Badge variant="secondary">4 star tiers</Badge>
+      <Badge variant="secondary">Updated daily</Badge>
+    </div>
+
+    <h1 class="mt-8 text-4xl leading-[1.02] font-medium tracking-tight text-balance md:text-6xl">
+      How the <em class="text-viz-accent italic">numbers</em> are gathered.
+    </h1>
+
+    <p class="mt-6 leading-relaxed text-muted-foreground md:text-lg">
+      Every number on this site is a single count from the public GitHub search
+      API: the number of repositories created in a rolling one-year window,
+      tagged with a given language. There is no sampling, no estimation, and no
+      secret sauce — just a deliberately slow, carefully scoped pipeline.
+    </p>
+
+    <div class="mt-16 space-y-16">
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">01</span> What counts
+        </h2>
+        <ul class="mt-5 list-disc space-y-2 pl-5 leading-relaxed text-muted-foreground">
+          <li>
+            A repository counts if it was <em>created</em> inside the window and
+            is tagged with the language.
+          </li>
+          <li>Forks and mirrors are excluded from every query.</li>
+          <li>
+            Only public repositories are visible to the unauthenticated search
+            API.
+          </li>
+          <li>
+            The count is the search result's{" "}
+            <code class="font-serif">total_count</code> — GitHub computes it, we
+            don't.
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">02</span> The window
+        </h2>
+        <p class="mt-5 leading-relaxed text-muted-foreground">
+          The "last year" is never hardcoded. On every build, the window is
+          computed as <em>today minus 365 days → today</em>, in UTC, inclusive
+          on both ends.
+        </p>
+      </div>
+
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">03</span> The query
+        </h2>
+        <p class="mt-5 leading-relaxed text-muted-foreground">
+          Four queries per language — one per star tier. Here is the exact query
+          behind the JavaScript count in the top tier:
+        </p>
+        <pre class="mt-4 overflow-x-auto border border-border bg-muted/40 p-4 text-sm leading-relaxed"><code>{queryExample}</code></pre>
+        <p class="mt-3 leading-relaxed text-muted-foreground">
+          The other tiers are the same query with{" "}
+          <code class="font-serif">stars:&gt;50</code>,{" "}
+          <code class="font-serif">stars:&gt;10</code>, or no stars qualifier at
+          all. Served from{" "}
+          <code class="break-all font-serif text-sm">api.github.com</code> with{" "}
+          <code class="font-serif">per_page=1</code> — only the total matters,
+          never the results.
+        </p>
+      </div>
+
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">04</span> Rate limits &amp;
+          throttling
+        </h2>
+        <p class="mt-5 leading-relaxed text-muted-foreground">
+          The API is called without credentials, so it is bound by the public
+          search limit:{" "}
+          <strong class="text-foreground">10 requests per minute</strong> per IP
+          address. The fetcher therefore paces itself to exactly one request
+          every 6 seconds (10/min), honors{" "}
+          <code class="font-serif">x-ratelimit-remaining</code> and{" "}
+          <code class="font-serif">retry-after</code> headers, and waits out the
+          documented reset window when the budget runs dry. A full refresh —
+          four tiers across {meta.languagesTracked} languages,{" "}
+          {meta.languagesTracked * 4} requests — takes about twelve minutes.
+        </p>
+      </div>
+
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">05</span> Scope —
+          mainstream only
+        </h2>
+        <p class="mt-5 leading-relaxed text-muted-foreground">
+          This is a popularity index for the languages people actually build
+          with, not a census of every language GitHub can tag. The catalog is
+          hand-curated to common, general-purpose languages and the widely used
+          special-purpose ones (web markup, data science, systems scripting).
+          Esoteric and niche languages are intentionally excluded, and the
+          catalog is the same every day so comparisons stay apples-to-apples.
+        </p>
+      </div>
+
+      <div>
+        <h2 class={sectionHeadingClass}>
+          <span class="text-viz-accent tabular-nums">06</span> Caveats
+        </h2>
+        <ul class="mt-5 list-disc space-y-2 pl-5 leading-relaxed text-muted-foreground">
+          <li>
+            Language tags come from GitHub's Linguist detection and can
+            occasionally mis-tag a repository.
+          </li>
+          <li>
+            Counts can drift slightly between builds as the search index
+            settles.
+          </li>
+          <li>
+            A repository may appear in more than one language's count if its tag
+            changed mid-window.
+          </li>
+          <li>
+            Star tiers are counted at fetch time — a repository that gains its
+            101st star a day later is counted in the tier it was in on fetch
+            day.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <Separator className="my-16" />
+
+    <h2 class={sectionHeadingClass}>
+      <span class="text-viz-accent tabular-nums">FAQ</span> Frequently asked
+    </h2>
+    <MethodologyFaq client:load />
+
+    <div class="mt-16 border border-border p-8">
+      <p class="font-serif text-2xl leading-snug md:text-3xl">
+        Curious about a specific count?{" "}
+        <a
+          class="text-viz-accent underline decoration-1 underline-offset-4 transition-opacity hover:opacity-80"
+          href={apiUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Run the exact query yourself
+        </a>{" "}
+        — it's public.
+      </p>
+    </div>
+  </section>
+</Layout>

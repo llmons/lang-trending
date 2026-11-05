@@ -1,0 +1,44 @@
+---
+import { RiExternalLinkLine } from "@remixicon/react"
+
+import Logo from "@/components/logo.astro"
+import ThemeToggle from "@/components/theme-toggle"
+import { githubSearchUrl, loadRankings } from "@/lib/data"
+
+const { meta } = loadRankings()
+const sourceUrl = githubSearchUrl(meta.window)
+
+const navLinkClass =
+  "text-xs font-semibold tracking-widest uppercase text-muted-foreground transition-colors hover:text-foreground"
+---
+
+<header class="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+  <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-6 px-6">
+    <Logo />
+
+    <nav class="hidden items-center gap-8 md:flex" aria-label="Primary">
+      <a class={navLinkClass} href="/#ranking">
+        The ranking
+      </a>
+      <a class={navLinkClass} href="/#insights">
+        Field notes
+      </a>
+      <a class={navLinkClass} href="/methodology">
+        Methodology
+      </a>
+    </nav>
+
+    <div class="flex items-center gap-1">
+      <a
+        class="hidden items-center gap-1.5 px-2 text-xs font-semibold tracking-widest uppercase text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+        href={sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Source data
+        <RiExternalLinkLine className="size-3.5" />
+      </a>
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</header>

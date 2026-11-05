@@ -1,0 +1,60 @@
+---
+import { RiArrowRightLine } from "@remixicon/react"
+
+import { buttonVariants } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+---
+
+<Card className="gap-6">
+  <CardHeader>
+    <CardTitle>How the numbers are gathered</CardTitle>
+    <CardDescription>
+      Three constraints keep this index honest and reproducible.
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-6">
+    <ol class="space-y-5">
+      <li class="flex gap-4">
+        <span class="font-heading text-sm font-bold text-viz-accent tabular-nums">
+          01
+        </span>
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          Four queries per language — one per star tier — against the public
+          GitHub search API, unauthenticated, counting only repositories created
+          inside the window.
+        </p>
+      </li>
+      <li class="flex gap-4">
+        <span class="font-heading text-sm font-bold text-viz-accent tabular-nums">
+          02
+        </span>
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          Every request is spaced exactly six seconds apart — the public rate
+          limit of ten searches per minute.
+        </p>
+      </li>
+      <li class="flex gap-4">
+        <span class="font-heading text-sm font-bold text-viz-accent tabular-nums">
+          03
+        </span>
+        <p class="text-sm leading-relaxed text-muted-foreground">
+          The window is recomputed at build time — always today minus one year,
+          never hardcoded — and the site ships as static files.
+        </p>
+      </li>
+    </ol>
+    <a
+      href="/methodology"
+      class={buttonVariants({ variant: "outline", size: "sm" })}
+    >
+      Read the full methodology
+      <RiArrowRightLine data-icon="inline-end" />
+    </a>
+  </CardContent>
+</Card>

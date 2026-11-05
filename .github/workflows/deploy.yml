@@ -1,0 +1,61 @@
+name: Daily build & deploy
+
+on:
+  # Rebuild and redeploy every day at 00:37 UTC (automation-first).
+  schedule:
+    - cron: "37 0 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+
+      # `astro build` fetches the ranking from the public GitHub search API
+      # itself (~7 min, throttled) and bakes it into static pages. On failure
+      # the build fails and the previously deployed site stays online.
+      - run: pnpm run build
+        env:
+          # Repository pages live under /<repo>/; override for custom domains.
+          ASTRO_BASE: /${{ github.event.repository.name }}/
+          ASTRO_SITE: https://${{ github.repository_owner }}.github.io
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

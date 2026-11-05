@@ -1,0 +1,68 @@
+---
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { formatPercent } from "@/lib/format"
+
+interface Props {
+  top3Names: string[]
+  top3Share: number
+  top10Share: number
+  remaining: number
+}
+
+const { top3Names, top3Share, top10Share, remaining } = Astro.props
+---
+
+<Card className="gap-6">
+  <CardHeader>
+    <CardTitle>Concentration</CardTitle>
+    <CardDescription>
+      How much of the year's new code flows through the biggest languages.
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-7">
+    <div class="space-y-2">
+      <div class="flex items-baseline justify-between gap-4">
+        <span class="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+          Top 3 — {top3Names.join(", ")}
+        </span>
+        <span class="font-serif text-lg tabular-nums">
+          {formatPercent(top3Share)}
+        </span>
+      </div>
+      <div class="h-2 bg-muted">
+        <div
+          class="h-full bg-viz-accent"
+          style={`width: ${top3Share * 100}%`}
+        ></div>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <div class="flex items-baseline justify-between gap-4">
+        <span class="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+          Top 10
+        </span>
+        <span class="font-serif text-lg tabular-nums">
+          {formatPercent(top10Share)}
+        </span>
+      </div>
+      <div class="h-2 bg-muted">
+        <div
+          class="h-full bg-viz-accent/70"
+          style={`width: ${top10Share * 100}%`}
+        ></div>
+      </div>
+    </div>
+
+    <p class="text-sm leading-relaxed text-muted-foreground">
+      The long tail is long: the remaining {remaining} tracked languages split
+      the rest of the year's new repositories between them.
+    </p>
+  </CardContent>
+</Card>
