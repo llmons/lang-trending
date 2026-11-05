@@ -8,20 +8,32 @@
  *
  * Four queries per language, one per star tier: all repositories, and the
  * repositories that cleared 10 / 50 / 100 stars. 29 languages × 4 tiers =
- * 116 requests ≈ 12 minutes at the 10 req/min public limit.
+ * 116 requests. In CI the auto-injected `GITHUB_TOKEN` grants the dedicated
+ * authenticated limit (30 req/min ≈ 5 min); locally the build runs
+ * unauthenticated (10 req/min ≈ 12 min).
  *
  * `astro dev` re-evaluates this module once per dev-server session, so the
- * first page request after `astro dev` performs a full (~12 minute) fetch.
+ * first page request after `astro dev` performs a full fetch.
  * For a quick local look, prefer `astro build && astro preview`.
+ *
+ * ⚠ Server-only: never import a VALUE from this module in client code
+ * (islands). The bundler would ship the fetch pipeline — including this
+ * module's top-level await — into the browser bundle and every visitor
+ * would start a 116-request fetch. Client code imports the data model
+ * from `@/lib/tiers` instead.
  */
 
-import { countRepos } from "@/lib/github"
+import {
+  AUTHENTICATED_INTERVAL_MS,
+  UNAUTHENTICATED_INTERVAL_MS,
+  countRepos,
+} from "@/lib/github"
 import {
   LANGUAGE_CATALOG,
   LANGUAGE_CATEGORIES,
-  type CategoryId,
   type LanguageMeta,
 } from "@/lib/languages"
+import { STAR_TIERS } from "@/lib/tiers"
 import {
   createdQualifier,
   rollingWindow,
@@ -29,53 +41,16 @@ import {
   type RollingWindow,
 } from "@/lib/window"
 
-/** The four ranking tiers — one GitHub query per tier per language. */
-export const STAR_TIERS = [
-  { id: "all", label: "All repos", starsQualifier: "" },
-  { id: "gt10", label: "Stars > 10", starsQualifier: "stars:>10" },
-  { id: "gt50", label: "Stars > 50", starsQualifier: "stars:>50" },
-  { id: "gt100", label: "Stars > 100", starsQualifier: "stars:>100" },
-] as const
-
-export type TierId = (typeof STAR_TIERS)[number]["id"]
-
-export interface RankingsMeta {
-  /** ISO timestamp of when the counts were fetched. */
-  generatedAt: string
-  window: { from: string; to: string }
-  languagesTracked: number
-}
-
-export interface RankedLanguage extends LanguageMeta {
-  /** Repositories created in the window, within this tier. */
-  repos: number
-  /** Share of the tier total across all tracked languages. */
-  share: number
-  /** 1-based position within the tier. */
-  rank: number
-}
-
-export interface TierRanking {
-  id: TierId
-  label: string
-  /** Sum of the tier across all tracked languages. */
-  total: number
-  ranked: RankedLanguage[]
-}
-
-export interface CategoryShare {
-  id: CategoryId
-  label: string
-  repos: number
-  share: number
-}
-
-export interface Rankings {
-  meta: RankingsMeta
-  tiers: Record<TierId, TierRanking>
-  /** Share of the year's new repositories (all-repos tier) by family. */
-  categories: CategoryShare[]
-}
+// Re-exported so server-rendered components can keep importing from here.
+export { STAR_TIERS } from "@/lib/tiers"
+export type {
+  CategoryShare,
+  RankedLanguage,
+  Rankings,
+  RankingsMeta,
+  TierId,
+  TierRanking,
+} from "@/lib/tiers"
 
 function buildQuery(
   languageId: string,
@@ -88,6 +63,17 @@ function buildQuery(
 
 /** Per-language, per-tier counts, filled by the fetch rounds. */
 const counts = new Map<string, number>()
+
+/**
+ * The auto-injected `GITHUB_TOKEN` from GitHub Actions. Present in CI, absent
+ * locally — the pipeline adapts its pacing to the matching rate-limit mode.
+ */
+const githubToken = process.env.GITHUB_TOKEN
+const requestInterval = githubToken
+  ? AUTHENTICATED_INTERVAL_MS
+  : UNAUTHENTICATED_INTERVAL_MS
+const requestRate = githubToken ? 30 : 10
+const requestMode = githubToken ? "authenticated" : "unauthenticated"
 
 /** One round of per-language fetches. Returns the languages that failed. */
 async function fetchCountsRound(
@@ -103,6 +89,8 @@ async function fetchCountsRound(
       for (const tier of STAR_TIERS) {
         console.log(`${progress} ${language.name} — ${tier.label}`)
         const repos = await countRepos(buildQuery(language.id, tier, window), {
+          intervalMs: requestInterval,
+          token: githubToken,
           log,
         })
         counts.set(`${language.id}:${tier.id}`, repos)
@@ -121,7 +109,7 @@ async function fetchRankings(): Promise<Rankings> {
   console.log(
     `Fetching live data from the GitHub search API\n` +
       `  window:    ${toDatePart(current.from)} .. ${toDatePart(current.to)}\n` +
-      `  languages: ${LANGUAGE_CATALOG.length} × ${STAR_TIERS.length} tiers = ${LANGUAGE_CATALOG.length * STAR_TIERS.length} requests (paced at 10 req/min)`
+      `  languages: ${LANGUAGE_CATALOG.length} × ${STAR_TIERS.length} tiers = ${LANGUAGE_CATALOG.length * STAR_TIERS.length} requests (${requestMode}, paced at ${requestRate} req/min)`
   )
 
   // First pass over every language, then up to two recovery rounds for the

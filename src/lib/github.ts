@@ -1,20 +1,22 @@
 /**
  * Minimal client for the public GitHub search API.
  *
- * The API is accessed without credentials, so it is subject to the
- * public rate limits (10 search requests / minute per IP). Every call
- * is paced to exactly that ceiling, and `403`/`429` responses are
+ * Without a token, requests are subject to the public rate limits
+ * (10 search requests / minute, per IP). With a token — the
+ * automatically injected `GITHUB_TOKEN` in CI — the limits are
+ * dedicated: 30 search requests / minute. `403`/`429` responses are
  * honored by waiting out the documented reset window.
  */
 
 const SEARCH_API_URL = "https://api.github.com/search/repositories"
 
 /**
- * 6s spacing = exactly 10 req/min, the public unauthenticated search limit.
+ * Pacing defaults per mode, matching the documented search limits exactly.
  * `pace()` sleeps until the full interval has elapsed, so actual spacing can
- * only be ≥ 6s and the ceiling can never be exceeded.
+ * only be ≥ the interval and the ceiling can never be exceeded.
  */
-const DEFAULT_INTERVAL_MS = 6_000
+export const UNAUTHENTICATED_INTERVAL_MS = 6_000 // 10 req/min
+export const AUTHENTICATED_INTERVAL_MS = 2_000 // 30 req/min
 
 const REQUEST_TIMEOUT_MS = 60_000
 
@@ -78,6 +80,8 @@ async function waitForBudget(
 export interface CountOptions {
   /** Spacing between requests in milliseconds. */
   intervalMs?: number
+  /** Optional bearer token — the auto-injected `GITHUB_TOKEN` in CI. */
+  token?: string
   log?: (message: string) => void
 }
 
@@ -88,7 +92,7 @@ export interface CountOptions {
  */
 export async function countRepos(
   query: string,
-  { intervalMs = DEFAULT_INTERVAL_MS, log }: CountOptions = {}
+  { intervalMs = UNAUTHENTICATED_INTERVAL_MS, token, log }: CountOptions = {}
 ): Promise<number> {
   const url = `${SEARCH_API_URL}?q=${encodeURIComponent(query)}&per_page=1`
 
@@ -106,7 +110,10 @@ export async function countRepos(
       // The whole exchange — headers and body — shares the timeout signal,
       // so a stall at any stage is retried rather than fatal.
       res = await fetch(url, {
-        headers: BASE_HEADERS,
+        headers: {
+          ...BASE_HEADERS,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       })
       data = (await res.json()) as { total_count?: unknown }

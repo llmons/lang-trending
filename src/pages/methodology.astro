@@ -16,6 +16,7 @@ const apiUrl = `https://api.github.com/search/repositories?q=${encodeURIComponen
 
 const sectionHeadingClass =
   "flex items-baseline gap-4 font-heading text-lg font-semibold tracking-widest uppercase md:text-xl"
+const base = import.meta.env.BASE_URL
 ---
 
 <Layout
@@ -23,7 +24,7 @@ const sectionHeadingClass =
   description="How lang.trending measures programming language popularity: GitHub search queries, a rolling one-year window, and a throttled, unauthenticated pipeline."
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-16 pb-24 md:pt-20">
-    <a href="/" class={buttonVariants({ variant: "ghost", size: "sm" })}>
+    <a href={base} class={buttonVariants({ variant: "ghost", size: "sm" })}>
       <RiArrowLeftLine data-icon="inline-start" />
       Back to the ranking
     </a>
@@ -108,16 +109,22 @@ const sectionHeadingClass =
           throttling
         </h2>
         <p class="mt-5 leading-relaxed text-muted-foreground">
-          The API is called without credentials, so it is bound by the public
-          search limit:{" "}
+          Local builds call the API without credentials and are bound by the
+          public search limit:{" "}
           <strong class="text-foreground">10 requests per minute</strong> per IP
-          address. The fetcher therefore paces itself to exactly one request
-          every 6 seconds (10/min), honors{" "}
+          address — and GitHub Actions shares runner IPs across many
+          repositories, so that pool can be exhausted by strangers. The daily CI
+          build therefore authenticates with the automatically injected{" "}
+          <code class="font-serif">GITHUB_TOKEN</code>: a dedicated{" "}
+          <strong class="text-foreground">30 requests per minute</strong> per
+          build. The fetcher paces itself to exactly one request every 6 seconds
+          (unauthenticated) or 2 seconds (authenticated), honors{" "}
           <code class="font-serif">x-ratelimit-remaining</code> and{" "}
           <code class="font-serif">retry-after</code> headers, and waits out the
           documented reset window when the budget runs dry. A full refresh —
           four tiers across {meta.languagesTracked} languages,{" "}
-          {meta.languagesTracked * 4} requests — takes about twelve minutes.
+          {meta.languagesTracked * 4} requests — takes about five minutes in CI
+          and twelve minutes locally.
         </p>
       </div>
 

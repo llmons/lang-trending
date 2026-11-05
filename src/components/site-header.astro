@@ -10,6 +10,7 @@ const sourceUrl = githubSearchUrl(meta.window)
 
 const navLinkClass =
   "text-xs font-semibold tracking-widest uppercase text-muted-foreground transition-colors hover:text-foreground"
+const base = import.meta.env.BASE_URL
 ---
 
 <header class="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
@@ -17,13 +18,13 @@ const navLinkClass =
     <Logo />
 
     <nav class="hidden items-center gap-8 md:flex" aria-label="Primary">
-      <a class={navLinkClass} href="/#ranking">
+      <a class={navLinkClass} href={`${base}#ranking`}>
         The ranking
       </a>
-      <a class={navLinkClass} href="/#insights">
+      <a class={navLinkClass} href={`${base}#insights`}>
         Field notes
       </a>
-      <a class={navLinkClass} href="/methodology">
+      <a class={navLinkClass} href={`${base}methodology`}>
         Methodology
       </a>
     </nav>

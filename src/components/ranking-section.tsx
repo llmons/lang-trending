@@ -5,8 +5,8 @@ import { cn } from "cn"
 import RankingTable from "@/components/ranking-table"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { STAR_TIERS, type TierId, type TierRanking } from "@/lib/data"
 import { formatFull, formatPercent } from "@/lib/format"
+import { STAR_TIERS, type TierId, type TierRanking } from "@/lib/tiers"
 
 function Podium({ tier }: { tier: TierRanking }) {
   return (

@@ -24,10 +24,10 @@ All code, tooling, and project configuration must stay consistent with this defi
 - **No committed data files**: Every count is fetched fresh at build time. There is no data snapshot to maintain and the CI never pushes to the repository.
 
 ## Data Source Notes
-- Data is sourced from the public GitHub search API, accessed **without a security/authentication key**.
+- Data is sourced from the public GitHub search API. **No self-managed credentials**: CI uses the automatically injected `GITHUB_TOKEN` (dedicated 30 searches/min), local builds run unauthenticated (shared 10 searches/min per IP).
 - The fetch runs **inside `astro build`** (top-level await in `src/lib/data.ts`, evaluated once per build and shared by all pages).
-- One query per language per star tier: 29 languages × 4 tiers = **116 requests ≈ 12 minutes** per build.
-- Pacing is **exactly one request every 6 seconds** (the public unauthenticated limit of 10 searches/minute). `403`/`429` responses trigger rate-limit waits (≥30s) and retries with exponential backoff; languages that still fail are retried in whole-pipeline recovery rounds after cooling down.
+- One query per language per star tier: 29 languages × 4 tiers = **116 requests** per build (≈5 minutes authenticated in CI, ≈12 minutes unauthenticated locally).
+- Pacing matches the mode's limit exactly — one request every 2s (authenticated) or 6s (unauthenticated). `403`/`429` responses trigger rate-limit waits (≥30s) and retries with exponential backoff; languages that still fail are retried in whole-pipeline recovery rounds after cooling down.
 - If the fetch ultimately fails, the build fails too — the previously deployed site stays online until the next successful build. There is no stale-data fallback.
 
 ## Automation (CI/CD)

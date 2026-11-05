@@ -37,10 +37,13 @@ jobs:
       - run: pnpm run lint
 
       # `astro build` fetches the ranking from the public GitHub search API
-      # itself (~12 min, throttled) and bakes it into static pages. On failure
-      # the build fails and the previously deployed site stays online.
+      # itself and bakes it into static pages. The auto-injected GITHUB_TOKEN
+      # grants the dedicated 30 req/min authenticated limit (~5 min); without
+      # it the fetch falls back to the shared 10 req/min unauthenticated pool.
+      # On failure the build fails and the previously deployed site stays online.
       - run: pnpm run build
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Repository pages live under /<repo>/; override for custom domains.
           ASTRO_BASE: /${{ github.event.repository.name }}/
           ASTRO_SITE: https://${{ github.repository_owner }}.github.io

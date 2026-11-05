@@ -3,7 +3,7 @@ interface Props {
   href?: string
 }
 
-const { href = "/" } = Astro.props
+const { href = import.meta.env.BASE_URL } = Astro.props
 ---
 
 <a

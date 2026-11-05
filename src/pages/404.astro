@@ -1,6 +1,7 @@
 ---
 import { buttonVariants } from "@/components/ui/button"
 import Layout from "@/layouts/main.astro"
+const base = import.meta.env.BASE_URL
 ---
 
 <Layout title="404 — lang.trending" description="This page does not exist.">
@@ -19,7 +20,7 @@ import Layout from "@/layouts/main.astro"
       index itself is still counting.
     </p>
     <a
-      href="/"
+      href={base}
       class:list={[buttonVariants({ variant: "default", size: "lg" }), "mt-8"]}
     >
       Back to the ranking

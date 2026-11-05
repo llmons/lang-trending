@@ -36,7 +36,7 @@ const FAQS = [
   {
     question: "What happens if the API rate-limits the build?",
     answer:
-      "The public search API allows 10 unauthenticated requests per minute, and the fetcher paces itself to exactly that ceiling — one request every 6 seconds, 116 requests for a full refresh — with automatic retries after rate-limit windows and whole-pipeline recovery rounds for stragglers. If a fetch still fails, the build fails too — the site has no data to fall back on — and the previously deployed site simply stays online until the next successful build.",
+      "Unauthenticated search allows 10 requests per minute per IP — and GitHub Actions shares runner IPs across many repositories, so that pool can be exhausted by other people's workflows. The daily CI build therefore authenticates with the automatically injected GITHUB_TOKEN, which grants a dedicated 30 requests per minute. The fetcher paces itself to exactly the ceiling of its mode — one request every 6 seconds unauthenticated, 2 seconds authenticated — with automatic retries after rate-limit windows and whole-pipeline recovery rounds for stragglers. If a fetch still fails, the build fails too — the site has no data to fall back on — and the previously deployed site simply stays online until the next successful build.",
   },
 ]
 
