@@ -33,24 +33,20 @@ import {
   LANGUAGE_CATEGORIES,
   type LanguageMeta,
 } from "@/lib/languages"
-import { STAR_TIERS } from "@/lib/tiers"
+import {
+  STAR_TIERS,
+  type RankedLanguage,
+  type Rankings,
+  type RankingsMeta,
+  type TierId,
+  type TierRanking,
+} from "@/lib/tiers"
 import {
   createdQualifier,
   rollingWindow,
   toDatePart,
   type RollingWindow,
 } from "@/lib/window"
-
-// Re-exported so server-rendered components can keep importing from here.
-export { STAR_TIERS } from "@/lib/tiers"
-export type {
-  CategoryShare,
-  RankedLanguage,
-  Rankings,
-  RankingsMeta,
-  TierId,
-  TierRanking,
-} from "@/lib/tiers"
 
 function buildQuery(
   languageId: string,

@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { TierRanking } from "@/lib/data"
+import type { TierRanking } from "@/lib/tiers"
 import { formatFull, formatPercent } from "@/lib/format"
 
 export default function RankingTable({ tier }: { tier: TierRanking }) {
