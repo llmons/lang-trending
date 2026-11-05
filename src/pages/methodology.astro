@@ -34,7 +34,7 @@ const base = import.meta.env.BASE_URL
         Window: {formatDate(meta.window.from)} → {formatDate(meta.window.to)}
       </Badge>
       <Badge variant="secondary">{meta.languagesTracked} languages</Badge>
-      <Badge variant="secondary">4 star tiers</Badge>
+      <Badge variant="secondary">3 star tiers</Badge>
       <Badge variant="secondary">Updated daily</Badge>
     </div>
 
@@ -58,6 +58,11 @@ const base = import.meta.env.BASE_URL
           <li>
             A repository counts if it was <em>created</em> inside the window and
             is tagged with the language.
+          </li>
+          <li>
+            The base tier requires at least 2 stars — zero- and one-star
+            repositories (dominated by throwaway experiments and static-site
+            detritus) are excluded from every count.
           </li>
           <li>Forks and mirrors are excluded from every query.</li>
           <li>
@@ -88,15 +93,16 @@ const base = import.meta.env.BASE_URL
           <span class="text-viz-accent tabular-nums">03</span> The query
         </h2>
         <p class="mt-5 leading-relaxed text-muted-foreground">
-          Four queries per language — one per star tier. Here is the exact query
-          behind the JavaScript count in the top tier:
+          Three queries per language — one per star tier. Here is the exact
+          query behind the JavaScript count in the top tier:
         </p>
         <pre class="mt-4 overflow-x-auto border border-border bg-muted/40 p-4 text-sm leading-relaxed"><code>{queryExample}</code></pre>
         <p class="mt-3 leading-relaxed text-muted-foreground">
           The other tiers are the same query with{" "}
-          <code class="font-serif">stars:&gt;=50</code>,{" "}
-          <code class="font-serif">stars:&gt;=10</code>, or no stars qualifier
-          at all — every threshold is inclusive. Served from{" "}
+          <code class="font-serif">stars:&gt;=20</code> or{" "}
+          <code class="font-serif">stars:&gt;=2</code> — every threshold is
+          inclusive, and repositories below 2 stars are deliberately out of
+          scope. Served from{" "}
           <code class="break-all font-serif text-sm">api.github.com</code> with{" "}
           <code class="font-serif">per_page=1</code> — only the total matters,
           never the results.
@@ -122,9 +128,9 @@ const base = import.meta.env.BASE_URL
           <code class="font-serif">x-ratelimit-remaining</code> and{" "}
           <code class="font-serif">retry-after</code> headers, and waits out the
           documented reset window when the budget runs dry. A full refresh —
-          four tiers across {meta.languagesTracked} languages,{" "}
-          {meta.languagesTracked * 4} requests — takes about five minutes in CI
-          and twelve minutes locally.
+          three tiers across {meta.languagesTracked} languages,{" "}
+          {meta.languagesTracked * 3} requests — takes about four minutes in CI
+          and nine minutes locally.
         </p>
       </div>
 
@@ -174,17 +180,16 @@ const base = import.meta.env.BASE_URL
           score
         </h2>
         <p class="mt-5 leading-relaxed text-muted-foreground">
-          The weighted ranking in the Field notes folds the four tiers into one
+          The weighted ranking in the Field notes folds the three tiers into one
           composite. Each tier's count is multiplied by a weight that grows with
-          the threshold — <strong class="text-foreground">1×</strong> for all
-          repositories, <strong class="text-foreground">2×</strong> at ≥10
-          stars, <strong class="text-foreground">4×</strong> at ≥50,{" "}
-          <strong class="text-foreground">8×</strong> at ≥100 — and summed per
+          the threshold — <strong class="text-foreground">1×</strong> at ≥2
+          stars, <strong class="text-foreground">2×</strong> at ≥20,{" "}
+          <strong class="text-foreground">4×</strong> at ≥100 — and summed per
           language. Because the tiers are nested, a repository that cleared
-          every threshold contributes 1+2+4+8 = 15 points while one below 10
-          stars contributes 1: the harder a repository was to earn, the more it
-          counts. It is pure arithmetic on the same {meta.languagesTracked * 4}{" "}
-          counts — no extra API requests.
+          every threshold contributes 1+2+4 = 7 points while one below 2 stars
+          contributes nothing at all: the harder a repository was to earn, the
+          more it counts. It is pure arithmetic on the same{" "}
+          {meta.languagesTracked * 3} counts — no extra API requests.
         </p>
       </div>
     </div>

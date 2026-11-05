@@ -1,5 +1,5 @@
 ## Project Overview
-`lang-trending` is a daily-updated static website that presents a ranking of programming languages based on the number of qualifying GitHub repositories created within a rolling one-year window, across four inclusive star-threshold tiers (all repos, ≥10, ≥50, ≥100 stars), plus a weighted composite (tier weights 1×/2×/4×/8×) derived from the same counts.
+`lang-trending` is a daily-updated static website that presents a ranking of programming languages based on the number of qualifying GitHub repositories created within a rolling one-year window, across three inclusive star-threshold tiers (≥2, ≥20, ≥100 stars; repositories below 2 stars are deliberately out of scope), plus a weighted composite (tier weights 1×/2×/4×) derived from the same counts.
 
 ## Project Positioning
 - A data-driven, fully static site that surfaces language popularity trends from public GitHub repository data.
@@ -26,7 +26,7 @@ All code, tooling, and project configuration must stay consistent with this defi
 ## Data Source Notes
 - Data is sourced from the public GitHub search API. **No self-managed credentials**: CI uses the automatically injected `GITHUB_TOKEN` (dedicated 30 searches/min), local builds run unauthenticated (shared 10 searches/min per IP).
 - The fetch runs **inside `astro build`** (top-level await in `src/lib/data.ts`, evaluated once per build and shared by all pages).
-- One query per language per star tier: 29 languages × 4 tiers = **116 requests** per build (≈5 minutes authenticated in CI, ≈12 minutes unauthenticated locally). The weighted composite in Field notes is pure arithmetic on these counts — it never adds requests.
+- One query per language per star tier: 29 languages × 3 tiers = **87 requests** per build (≈4 minutes authenticated in CI, ≈9 minutes unauthenticated locally). The weighted composite in Field notes is pure arithmetic on these counts — it never adds requests.
 - Pacing matches the mode's limit exactly — one request every 2s (authenticated) or 6s (unauthenticated). `403`/`429` responses trigger rate-limit waits (≥30s) and retries with exponential backoff; languages that still fail are retried in whole-pipeline recovery rounds after cooling down.
 - If the fetch ultimately fails, the build fails too — the previously deployed site stays online until the next successful build. There is no stale-data fallback.
 

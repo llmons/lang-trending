@@ -1,13 +1,13 @@
 # lang.trending
 
-A daily-updated static site that ranks programming languages by the number of new public GitHub repositories created within a rolling one-year window — across four inclusive star tiers: **all repos**, **≥10 stars**, **≥50 stars**, **≥100 stars** — plus a weighted composite that folds the four tiers into one score (weights 1×/2×/4×/8×, derived from the same counts).
+A daily-updated static site that ranks programming languages by the number of new public GitHub repositories created within a rolling one-year window — across three inclusive star tiers: **≥2 stars**, **≥20 stars**, **≥100 stars** (repositories below 2 stars are deliberately out of scope) — plus a weighted composite that folds the three tiers into one score (weights 1×/2×/4×, derived from the same counts).
 
 ## How it works
 
 Every build is a fresh measurement:
 
 1. `astro build` computes the window — *today minus 365 days → today* (UTC), never hardcoded.
-2. It queries the public GitHub search API once per language per star tier: 29 mainstream languages × 4 tiers = **116 requests**, paced at exactly the rate limit of the current mode — the dedicated 30 requests/minute with the CI's auto-injected `GITHUB_TOKEN` (~5 minutes), or the shared unauthenticated pool of 10 requests/minute (~12 minutes).
+2. It queries the public GitHub search API once per language per star tier: 29 mainstream languages × 3 tiers = **87 requests**, paced at exactly the rate limit of the current mode — the dedicated 30 requests/minute with the CI's auto-injected `GITHUB_TOKEN` (~4 minutes), or the shared unauthenticated pool of 10 requests/minute (~9 minutes).
 3. The counts are baked into fully static pages — no client-side data fetching, no committed data files.
 
 Forks and mirrors are excluded from every query. The language catalog is hand-curated to common, mainstream languages only (see `src/lib/languages.ts`); niche and esoteric languages are intentionally out of scope. Rate-limit responses trigger retries with exponential backoff and whole-pipeline recovery rounds.

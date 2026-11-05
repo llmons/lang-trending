@@ -18,7 +18,7 @@ const { tiers } = Astro.props
 const rows = STAR_TIERS.map((tier) => ({
   label: tier.label,
   total: tiers[tier.id].total,
-  share: tiers[tier.id].total / Math.max(tiers.all.total, 1),
+  share: tiers[tier.id].total / Math.max(tiers.ge2.total, 1),
 }))
 ---
 

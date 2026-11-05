@@ -26,7 +26,7 @@ const FAQS = [
   {
     question: "How are the star tiers measured?",
     answer:
-      "Each tier is its own GitHub search query: the base query plus a stars:>=10, stars:>=50, or stars:>=100 qualifier. Every threshold is inclusive, and the tiers are nested — everything in the ≥100 tier is also counted in the ≥50 and ≥10 tiers. Stars are counted at fetch time, so a repository that crosses a threshold right after a build is counted in its old tier until the next daily build.",
+      "Each tier is its own GitHub search query with a stars qualifier: stars:>=2, stars:>=20, or stars:>=100. Every threshold is inclusive, and the tiers are nested — everything in the ≥100 tier is also counted in the ≥20 and ≥2 tiers. There is deliberately no zero-star tier: repositories with fewer than 2 stars, dominated by static-site detritus, are excluded from every count. Stars are counted at fetch time, so a repository that crosses a threshold right after a build is counted in its old tier until the next daily build.",
   },
   {
     question: "How often does the data update?",

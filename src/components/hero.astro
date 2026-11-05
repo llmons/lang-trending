@@ -87,9 +87,11 @@ const base = import.meta.env.BASE_URL
       <div class={statClass}>
         <dt class={statLabelClass}>New repositories</dt>
         <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
-          {formatCompact(tiers.all.total)}
+          {formatCompact(tiers.ge2.total)}
         </dd>
-        <p class={statNoteClass}>across the tracked languages</p>
+        <p class={statNoteClass}>
+          with at least 2 stars, across tracked languages
+        </p>
       </div>
 
       <div class={statClass}>
@@ -111,9 +113,9 @@ const base = import.meta.env.BASE_URL
       </div>
 
       <div class={statClass}>
-        <dt class={statLabelClass}>Repos with 10+ stars</dt>
+        <dt class={statLabelClass}>Repos with 100+ stars</dt>
         <dd class="mt-2 font-heading text-3xl font-bold tabular-nums md:text-4xl">
-          {formatCompact(tiers.ge10.total)}
+          {formatCompact(tiers.ge100.total)}
         </dd>
         <p class={statNoteClass}>of the year's new repositories</p>
       </div>

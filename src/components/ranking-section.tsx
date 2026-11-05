@@ -82,7 +82,11 @@ export default function RankingSection({
   tiers: Record<TierId, TierRanking>
 }) {
   return (
-    <Tabs defaultValue="all">
+    // `[overflow-anchor:none]` opts the whole ranking out of browser scroll
+    // anchoring: switching tiers toggles `hidden` on large panels, and some
+    // browsers (notably Safari) re-pick an anchor and jump the scroll
+    // position when combined with the sticky tab bar below.
+    <Tabs defaultValue="ge2" className="[overflow-anchor:none]">
       {/* Sticks below the site header (h-16) while the ranking scrolls, so the
           tier can be switched mid-table without scrolling back to the top. */}
       <div className="sticky top-16 z-40 bg-background">
@@ -99,7 +103,15 @@ export default function RankingSection({
         </TabsList>
       </div>
       {STAR_TIERS.map((tier) => (
-        <TabsContent key={tier.id} value={tier.id} className="space-y-6">
+        // keepMounted: panels stay in the DOM (toggling `hidden` only), so a
+        // tier switch never removes/recreates the tall table content — the
+        // second half of the sticky-tab scroll-jump defense.
+        <TabsContent
+          key={tier.id}
+          value={tier.id}
+          className="space-y-6"
+          keepMounted
+        >
           <Podium tier={tiers[tier.id]} />
           <div className="border border-border">
             <RankingTable tier={tiers[tier.id]} />

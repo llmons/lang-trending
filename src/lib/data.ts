@@ -6,11 +6,11 @@
  * runs a single time per build and every page shares the resolved result —
  * then renders all pages as static HTML from it.
  *
- * Four queries per language, one per star tier: all repositories, and the
- * repositories that cleared 10 / 50 / 100 stars. 29 languages × 4 tiers =
- * 116 requests. In CI the auto-injected `GITHUB_TOKEN` grants the dedicated
- * authenticated limit (30 req/min ≈ 5 min); locally the build runs
- * unauthenticated (10 req/min ≈ 12 min).
+ * Three queries per language, one per star tier: the repositories that
+ * cleared 2 / 20 / 100 stars. 29 languages × 3 tiers = 87 requests. In CI
+ * the auto-injected `GITHUB_TOKEN` grants the dedicated authenticated limit
+ * (30 req/min ≈ 4 min); locally the build runs unauthenticated (10 req/min
+ * ≈ 9 min).
  *
  * `astro dev` re-evaluates this module once per dev-server session, so the
  * first page request after `astro dev` performs a full fetch.
@@ -19,7 +19,7 @@
  * ⚠ Server-only: never import a VALUE from this module in client code
  * (islands). The bundler would ship the fetch pipeline — including this
  * module's top-level await — into the browser bundle and every visitor
- * would start a 116-request fetch. Client code imports the data model
+ * would start an 87-request fetch. Client code imports the data model
  * from `@/lib/tiers` instead.
  */
 
@@ -152,15 +152,17 @@ async function fetchRankings(): Promise<Rankings> {
     tiers[tier.id] = { id: tier.id, label: tier.label, total, ranked }
   }
 
+  // Categories are shares of the base tier (≥2 stars) — the "year's new
+  // repositories" as defined by the lowest included threshold.
   const categories = Object.values(LANGUAGE_CATEGORIES).map((category) => {
-    const repos = tiers.all.ranked
+    const repos = tiers.ge2.ranked
       .filter((language) => language.category === category.id)
       .reduce((sum, language) => sum + language.repos, 0)
     return {
       id: category.id,
       label: category.label,
       repos,
-      share: tiers.all.total > 0 ? repos / tiers.all.total : 0,
+      share: tiers.ge2.total > 0 ? repos / tiers.ge2.total : 0,
     }
   })
 

@@ -15,16 +15,16 @@ import { formatDate } from "@/lib/format"
 const data = loadRankings()
 const { meta, tiers } = data
 
-const top3 = tiers.all.ranked.slice(0, 3)
+const top3 = tiers.ge2.ranked.slice(0, 3)
 const top3Share = top3.reduce((sum, language) => sum + language.share, 0)
-const top10Share = tiers.all.ranked
+const top10Share = tiers.ge2.ranked
   .slice(0, 10)
   .reduce((sum, language) => sum + language.share, 0)
 
 const description =
   `Ranking of programming languages by the number of new GitHub repositories ` +
   `created between ${formatDate(meta.window.from)} and ${formatDate(meta.window.to)}, ` +
-  `with inclusive star tiers at 10, 50, and 100 stars. Updated daily from the public GitHub search API.`
+  `with inclusive star tiers at 2, 20, and 100 stars. Updated daily from the public GitHub search API.`
 
 const datasetSchema = {
   "@context": "https://schema.org",
@@ -42,7 +42,7 @@ const datasetSchema = {
   description={description}
 >
   <Hero data={data} />
-  <Ticker ranked={tiers.all.ranked} />
+  <Ticker ranked={tiers.ge2.ranked} />
 
   <section
     id="ranking"
@@ -52,7 +52,7 @@ const datasetSchema = {
       index="01"
       title="The ranking"
       aside={`${meta.languagesTracked} languages · ${formatDate(meta.window.from)} → ${formatDate(meta.window.to)}`}
-      description="New public GitHub repositories created in the last year, counted per language. Forks and mirrors excluded. Switch the tier to see how the ranking shifts when only repositories with at least 10, 50, or 100 stars count."
+      description="New public GitHub repositories created in the last year, counted per language. Forks and mirrors excluded; repositories need at least 2 stars to count. Switch the tier to see how the ranking shifts at the 20- and 100-star thresholds."
     />
     <RankingSection tiers={tiers} client:load />
   </section>
@@ -76,7 +76,7 @@ const datasetSchema = {
           top3Names={top3.map((language) => language.name)}
           top3Share={top3Share}
           top10Share={top10Share}
-          remaining={tiers.all.ranked.length - 10}
+          remaining={tiers.ge2.ranked.length - 10}
         />
         <MethodologyCard />
       </div>
